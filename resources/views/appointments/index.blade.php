@@ -41,18 +41,28 @@
                             </td>
                             <td>{{ $appt->purpose ?? '—' }}</td>
                             <td><span class="status-tag status-{{ $appt->status }}">{{ ucfirst(str_replace('_', ' ', $appt->status)) }}</span></td>
-                            <td>
-                                <form method="POST" action="{{ route('appointments.status', $appt) }}" class="status-form">
-                                    @csrf
-                                    @method('PATCH')
-                                    <select name="status" onchange="this.form.submit()" class="status-select">
-                                        <option value="scheduled" {{ $appt->status === 'scheduled' ? 'selected' : '' }}>Scheduled</option>
-                                        <option value="confirmed" {{ $appt->status === 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                        <option value="completed" {{ $appt->status === 'completed' ? 'selected' : '' }}>Completed</option>
-                                        <option value="no_show" {{ $appt->status === 'no_show' ? 'selected' : '' }}>No-show</option>
-                                        <option value="cancelled" {{ $appt->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                    </select>
-                                </form>
+<td>
+                                <div class="appt-actions">
+                                    <form method="POST" action="{{ route('appointments.status', $appt) }}" class="status-form">
+                                        @csrf
+                                        @method('PATCH')
+                                        <select name="status" onchange="this.form.submit()" class="status-select">
+                                            <option value="scheduled" {{ $appt->status === 'scheduled' ? 'selected' : '' }}>Scheduled</option>
+                                            <option value="confirmed" {{ $appt->status === 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                            <option value="completed" {{ $appt->status === 'completed' ? 'selected' : '' }}>Completed</option>
+                                            <option value="no_show" {{ $appt->status === 'no_show' ? 'selected' : '' }}>No-show</option>
+                                            <option value="cancelled" {{ $appt->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                        </select>
+                                    </form>
+
+                                    <a href="{{ route('appointments.edit', $appt) }}" class="row-icon-btn" title="Edit / Reschedule">✎</a>
+
+                                    <form method="POST" action="{{ route('appointments.destroy', $appt) }}" onsubmit="return confirm('Delete this appointment permanently?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="row-icon-btn row-icon-danger" title="Delete">🗑</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

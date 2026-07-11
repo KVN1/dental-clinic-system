@@ -2259,3 +2259,130 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Settings Tabs ===== */
+
+.settings-tabs {
+    display: flex;
+    gap: 0.4rem;
+    border-bottom: 1px solid #EEF2F1;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+}
+
+.settings-tab {
+    padding: 0.7rem 1.1rem;
+    border: none;
+    background: none;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.settings-tab:hover {
+    color: var(--color-ink);
+}
+
+.settings-tab.active {
+    color: var(--color-teal);
+    border-bottom-color: var(--color-teal);
+    font-weight: 600;
+}
+
+.settings-panel {
+    padding-top: 0.25rem;
+}
+.appt-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.row-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 0.4rem;
+    border: 1px solid #E7ECEB;
+    background: var(--color-surface);
+    color: var(--color-muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.row-icon-btn:hover {
+    border-color: var(--color-teal);
+    color: var(--color-teal);
+}
+
+.row-icon-danger:hover {
+    border-color: #D9534F;
+    color: #D9534F;
+}
+.profile-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.65rem 1.1rem;
+    background: transparent;
+    color: #D9534F;
+    border: 1px solid #F3D3D1;
+    border-radius: 0.6rem;
+    font-size: 0.86rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.btn-danger:hover {
+    background: #FDECEA;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+}
+
+.search-box input {
+    padding: 0.6rem 2.2rem 0.6rem 0.9rem;
+    border: 1px solid #E7ECEB;
+    border-radius: 0.6rem;
+    font-size: 0.86rem;
+    width: 280px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--color-teal);
+    box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.1);
+}
+
+.search-clear {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+}
+
+.search-clear:hover {
+    color: #D9534F;
+}

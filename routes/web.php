@@ -40,6 +40,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/patients/{patient}', [PatientController::class, 'show'])->name('patients.show');
     Route::post('/patients/{patient}/logs', [PatientController::class, 'storeLog'])->name('patients.logs.store');
     Route::get('/patients/{patient}/export', [SettingsController::class, 'exportPatientLogs'])->name('patients.export');
+    Route::get('/patients/{patient}/edit', [PatientController::class, 'edit'])->name('patients.edit');
+    Route::put('/patients/{patient}', [PatientController::class, 'update'])->name('patients.update');
+    Route::delete('/patients/{patient}', [PatientController::class, 'destroy'])->name('patients.destroy');
 
     Route::post('/privacy/reveal', [PrivacyController::class, 'reveal'])->name('privacy.reveal');
     Route::post('/privacy/hide', [PrivacyController::class, 'hide'])->name('privacy.hide');
@@ -50,6 +53,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
     Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
+    Route::get('/appointments/{appointment}/edit', [AppointmentController::class, 'edit'])->name('appointments.edit');
+    Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
+    Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings/theme', [SettingsController::class, 'toggleTheme'])->name('settings.theme');

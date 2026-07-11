@@ -58,7 +58,7 @@
         </table>
     </div>
 
-    <div class="panel">
+<div class="panel" style="margin-bottom: 1.5rem;">
         <h2 class="panel-title" style="margin-bottom: 1rem;">Revenue — Last 6 Months</h2>
 
         @if ($monthlyTrend->count() > 0)
@@ -73,6 +73,33 @@
             </div>
         @else
             <p class="empty-row">Not enough data yet to show a trend.</p>
+        @endif
+    </div>
+
+    <div class="panel">
+        <h2 class="panel-title" style="margin-bottom: 1rem;">Most Common Procedures</h2>
+
+        @if ($commonProcedures->count() > 0)
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Procedure</th>
+                        <th>Times Performed</th>
+                        <th>Total Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($commonProcedures as $proc)
+                        <tr>
+                            <td>{{ $proc->description }}</td>
+                            <td>{{ $proc->visit_count }}</td>
+                            <td>₱{{ number_format($proc->total_revenue, 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <p class="empty-row">Not enough visit data yet.</p>
         @endif
     </div>
 

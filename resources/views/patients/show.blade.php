@@ -1,13 +1,23 @@
 <x-clinic-layout :title="$patient->first_name . ' ' . $patient->last_name">
 
-    <div class="profile-header-row">
+<div class="profile-header-row">
         <a href="{{ route('patients.index') }}" class="back-link">← Back to Patients</a>
 
-        <form method="GET" action="{{ route('patients.export', $patient) }}" class="export-inline-form">
-            <input type="date" name="date_from" title="From date">
-            <input type="date" name="date_to" title="To date">
-            <button type="submit" class="btn-secondary">⬇ Export</button>
-        </form>
+        <div class="profile-header-actions">
+            <a href="{{ route('patients.edit', $patient) }}" class="btn-secondary">✎ Edit Patient</a>
+
+            <form method="GET" action="{{ route('patients.export', $patient) }}" class="export-inline-form">
+                <input type="date" name="date_from" title="From date">
+                <input type="date" name="date_to" title="To date">
+                <button type="submit" class="btn-secondary">⬇ Export</button>
+            </form>
+
+            <form method="POST" action="{{ route('patients.destroy', $patient) }}" onsubmit="return confirm('Permanently delete this patient and all their visit history? This cannot be undone.')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn-danger">🗑 Delete</button>
+            </form>
+        </div>
     </div>
 
     @if (session('success'))

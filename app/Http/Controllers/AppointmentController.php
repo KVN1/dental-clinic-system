@@ -57,4 +57,35 @@ class AppointmentController extends Controller
 
         return back()->with('success', 'Appointment updated.');
     }
+
+    // Show the edit/reschedule form
+    public function edit(Appointment $appointment)
+    {
+        $patients = Patient::orderBy('last_name')->get();
+        return view('appointments.edit', compact('appointment', 'patients'));
+    }
+
+    // Update an appointment
+    public function update(Request $request, Appointment $appointment)
+    {
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'appointment_date' => 'required|date',
+            'appointment_time' => 'required',
+            'purpose' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+        ]);
+
+        $appointment->update($validated);
+
+        return redirect()->route('appointments.index')->with('success', 'Appointment updated.');
+    }
+
+    // Delete an appointment entirely
+    public function destroy(Appointment $appointment)
+    {
+        $appointment->delete();
+
+        return redirect()->route('appointments.index')->with('success', 'Appointment deleted.');
+    }
 }

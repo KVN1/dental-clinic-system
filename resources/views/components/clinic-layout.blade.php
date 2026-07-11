@@ -51,6 +51,7 @@
                 </div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
+                    <input type="hidden" name="redirect_to" value="/login">
                     <button type="submit" class="logout-btn">Sign Out</button>
                 </form>
             </div>
