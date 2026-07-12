@@ -53,9 +53,9 @@ tr:hover td { background:#fafbff; }
 <body>
 <div class="page">
 
-    <div class="no-print">
-        <button class="btn btn-print" onclick="window.print()">Print Report</button>
-        <button class="btn btn-close" onclick="window.close()">Close</button>
+        <div class="no-print" style="text-align:right; margin-bottom:16px;">
+        <button onclick="window.print()" style="background:#1e4a8a;border:none;padding:8px 20px;border-radius:5px;cursor:pointer;font-size:13px;color:white;">Print</button>
+        <a href="/dashboard" style="background:#888;padding:8px 16px;border-radius:5px;font-size:13px;margin-left:8px;text-decoration:none;color:white;display:inline-block;">&larr; Back to Dashboard</a>
     </div>
 
     <div class="header">
@@ -65,7 +65,7 @@ tr:hover td { background:#fafbff; }
         </div>
         <div>
             <div class="report-title">Monthly Revenue Report</div>
-            <div class="report-period">{{ \Carbon\Carbon::create()->month($month)->format('F') }} {{ $year }}</div>
+            <div class="report-period">{{ \Carbon\Carbon::createFromDate($year, $month, 1)->format('F') }} {{ $year }}</div>
         </div>
     </div>
 
@@ -131,7 +131,7 @@ tr:hover td { background:#fafbff; }
 
     {{-- All Entries --}}
     <div class="section">
-        <div class="section-title">All Entries for {{ \Carbon\Carbon::create()->month($month)->format('F') }} {{ $year }}</div>
+        <div class="section-title">All Entries for {{ \Carbon\Carbon::createFromDate($year, $month, 1)->format('F') }} {{ $year }}</div>
         <table>
             <thead>
                 <tr>

@@ -49,13 +49,13 @@ td { padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
         <h2 style="color:#1e4a8a;margin-bottom:12px;">No Records Found</h2>
         <p>This patient has no visit or payment logs yet.</p>
         <p style="margin-top:8px;">Add a log entry from the patient profile first.</p>
-        <a href="javascript:history.back()" style="display:inline-block;margin-top:20px;background:#1e4a8a;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;">← Go Back</a>
+        <a href="javascript:history.back()" style="display:inline-block;margin-top:20px;background:#1e4a8a;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;">&larr; Go Back</a>
     </div>
     @else
 
-    <div class="no-print" style="text-align:right; margin-bottom:16px;">
-        <button onclick="window.print()" style="background:#1e4a8a;color:white;border:none;padding:8px 20px;border-radius:5px;cursor:pointer;font-size:13px;">Print Receipt</button>
-        <button onclick="window.history.back()" style="background:#888;color:white;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;font-size:13px;margin-left:8px;">← Back</button>
+        <div class="no-print" style="text-align:right; margin-bottom:16px;">
+        <button onclick="window.print()" style="background:#1e4a8a;border:none;padding:8px 20px;border-radius:5px;cursor:pointer;font-size:13px;color:white;">Print</button>
+        <a href="/patients/{{ $patient->id }}" style="background:#888;padding:8px 16px;border-radius:5px;font-size:13px;margin-left:8px;text-decoration:none;color:white;display:inline-block;">&larr; Back to Patient</a>
     </div>
 
     <div class="header">
