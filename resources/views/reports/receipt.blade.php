@@ -44,6 +44,15 @@ td { padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
 <body>
 <div class="page">
 
+    @if(!$log)
+    <div style="text-align:center;padding:60px 20px;color:#888;">
+        <h2 style="color:#1e4a8a;margin-bottom:12px;">No Records Found</h2>
+        <p>This patient has no visit or payment logs yet.</p>
+        <p style="margin-top:8px;">Add a log entry from the patient profile first.</p>
+        <a href="javascript:history.back()" style="display:inline-block;margin-top:20px;background:#1e4a8a;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;">← Go Back</a>
+    </div>
+    @else
+
     <div class="no-print" style="text-align:right; margin-bottom:16px;">
         <button onclick="window.print()" style="background:#1e4a8a;color:white;border:none;padding:8px 20px;border-radius:5px;cursor:pointer;font-size:13px;">Print Receipt</button>
         <button onclick="window.history.back()" style="background:#888;color:white;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;font-size:13px;margin-left:8px;">← Back</button>
@@ -123,6 +132,8 @@ td { padding: 8px 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
         <p style="margin-top:8px;color:#bbb;">Printed: {{ now()->format('F d, Y h:i A') }}</p>
     </div>
 
+</div>
+    @endif
 </div>
 </body>
 </html>
