@@ -50,7 +50,7 @@ tr:nth-child(even) td { background: #fafbff; }
 
     <div class="no-print" style="text-align:right; margin-bottom:16px;">
         <button onclick="window.print()" style="background:#1e4a8a;color:white;border:none;padding:8px 20px;border-radius:5px;cursor:pointer;font-size:13px;">Print Record</button>
-        <button onclick="window.close()" style="background:#888;color:white;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;font-size:13px;margin-left:8px;">Close</button>
+        <button onclick="window.history.back()" style="background:#888;color:white;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;font-size:13px;margin-left:8px;">← Back</button>
     </div>
 
     <div class="header">
