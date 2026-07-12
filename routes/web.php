@@ -8,6 +8,7 @@ use App\Http\Controllers\PrivacyController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -64,6 +65,16 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('admin')->group(function () {
         Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
+
+        // Reports
+        Route::get('/reports/monthly', [ReportController::class, 'monthlyRevenue'])->name('reports.monthly');
+        Route::get('/reports/appointments', [ReportController::class, 'appointmentSummary'])->name('reports.appointments');
+
+        // Print receipt - specific log or latest
+        Route::get('/patients/{patient}/receipt', [ReportController::class, 'printReceipt'])->name('patients.receipt');
+
+        // Print full patient record
+        Route::get('/patients/{patient}/print', [ReportController::class, 'printPatientRecord'])->name('patients.print');
         Route::post('/settings/users', [SettingsController::class, 'storeUser'])->name('settings.users.store');
         Route::delete('/settings/users/{user}', [SettingsController::class, 'destroyUser'])->name('settings.users.destroy');
         Route::post('/settings/backup', [SettingsController::class, 'createBackup'])->name('settings.backup');

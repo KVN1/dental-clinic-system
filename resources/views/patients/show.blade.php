@@ -2,6 +2,8 @@
 
 <div class="profile-header-row">
         <a href="{{ route('patients.index') }}" class="back-link">← Back to Patients</a>
+        <a href="{{ route('patients.receipt', $patient) }}" target="_blank">Print Receipt</a>
+<a href="{{ route('patients.print', $patient) }}" target="_blank">Print Record</a>
 
         <div class="profile-header-actions">
             <a href="{{ route('patients.edit', $patient) }}" class="btn-secondary">✎ Edit Patient</a>

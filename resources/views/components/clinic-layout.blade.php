@@ -36,6 +36,14 @@
 <a href="{{ route('logs.index') }}" class="nav-item {{ request()->routeIs('logs.*') ? 'active' : '' }}">
     <span class="nav-icon">▤</span> Logs
 </a>
+@if (auth()->user()->isAdmin())
+<a href="{{ route('reports.monthly') }}" class="nav-item {{ request()->routeIs('reports.monthly') ? 'active' : '' }}">
+    <span class="nav-icon">📊</span> Monthly Report
+</a>
+<a href="{{ route('reports.appointments') }}" class="nav-item {{ request()->routeIs('reports.appointments') ? 'active' : '' }}">
+    <span class="nav-icon">📅</span> Appt Report
+</a>
+@endif
 <a href="{{ route('settings.index') }}" class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
     <span class="nav-icon">⚙</span> Settings
 </a>
