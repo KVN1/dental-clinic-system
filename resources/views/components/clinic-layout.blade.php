@@ -18,7 +18,9 @@
                 @if($clinicSettings->logo)
                     <img src="{{ asset('storage/' . $clinicSettings->logo) }}" alt="{{ $clinicSettings->clinic_name }}" style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px;">
                 @else
-                    <img src="{{ asset('images/crosby-logo.png') }}" alt="{{ $clinicSettings->clinic_name ?? 'Dental Clinic' }}" style="width: 48px; height: 48px; object-fit: contain;">
+                    <div style="width:48px;height:48px;border-radius:10px;background:#dce6f7;display:flex;align-items:center;justify-content:center;font-size:22px;color:#1e4a8a;flex-shrink:0;">
+                        {{ strtoupper(substr($clinicSettings->clinic_name ?? 'D', 0, 1)) }}
+                    </div>
                 @endif
                 <span class="sidebar-brand-name">{{ $clinicSettings->clinic_name ?? 'Dental Clinic' }}</span>
             </div>

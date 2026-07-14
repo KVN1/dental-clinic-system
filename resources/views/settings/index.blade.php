@@ -37,7 +37,9 @@
                     <img src="{{ asset('storage/' . $appSettings->logo) }}" style="height:60px;border-radius:8px;border:1px solid #dce6f7;padding:4px;background:#fff;">
                     <a href="{{ route('settings.clinic.remove-logo') }}" onclick="return confirm('Remove logo?')" style="color:#D96A48;font-size:13px;text-decoration:none;">Remove</a>
                 @else
-                    <div style="height:60px;width:100px;border:2px dashed #dce6f7;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:12px;">No Logo</div>
+                    <div style="height:60px;width:60px;border-radius:10px;background:#dce6f7;display:flex;align-items:center;justify-content:center;font-size:26px;color:#1e4a8a;font-weight:bold;">
+                        {{ strtoupper(substr($appSettings->clinic_name ?? 'D', 0, 1)) }}
+                    </div>
                 @endif
                 <div>
                     <input type="file" name="logo" accept="image/*" style="font-size:13px;">
