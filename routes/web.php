@@ -80,6 +80,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/settings/backup', [SettingsController::class, 'createBackup'])->name('settings.backup');
         Route::get('/settings/backup/{filename}', [SettingsController::class, 'downloadBackup'])->name('settings.backup.download');
         Route::post('/settings/backup-preferences', [SettingsController::class, 'updateBackupSettings'])->name('settings.backup.preferences');
+
+        // Clinic Settings
+        Route::post('/settings/clinic', [SettingsController::class, 'updateClinic'])->name('settings.clinic');
+        Route::get('/settings/clinic/remove-logo', [SettingsController::class, 'removeLogo'])->name('settings.clinic.remove-logo');
     });
 });
 

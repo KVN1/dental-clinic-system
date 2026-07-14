@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'Dashboard' }} — Crosby Dental Clinic</title>
+    <title>{{ $title ?? 'Dashboard' }} — {{ \App\Models\AppSetting::current()->clinic_name ?? 'Dental Clinic' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="app-body {{ auth()->user()->theme === 'dark' ? 'theme-dark' : '' }}">
@@ -14,8 +14,13 @@
         <!-- Sidebar -->
         <aside class="sidebar" :class="sidebarOpen && 'sidebar-open'">
 <div class="sidebar-brand">
-                <img src="{{ asset('images/crosby-logo.png') }}" alt="Crosby Dental Clinic" style="width: 48px; height: 48px; object-fit: contain;">
-                <span class="sidebar-brand-name">Crosby Dental</span>
+                @php $clinicSettings = \App\Models\AppSetting::current(); @endphp
+                @if($clinicSettings->logo)
+                    <img src="{{ asset('storage/' . $clinicSettings->logo) }}" alt="{{ $clinicSettings->clinic_name }}" style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px;">
+                @else
+                    <img src="{{ asset('images/crosby-logo.png') }}" alt="{{ $clinicSettings->clinic_name ?? 'Dental Clinic' }}" style="width: 48px; height: 48px; object-fit: contain;">
+                @endif
+                <span class="sidebar-brand-name">{{ $clinicSettings->clinic_name ?? 'Dental Clinic' }}</span>
             </div>
 
             <nav class="sidebar-nav">
@@ -36,14 +41,6 @@
 <a href="{{ route('logs.index') }}" class="nav-item {{ request()->routeIs('logs.*') ? 'active' : '' }}">
     <span class="nav-icon">▤</span> Logs
 </a>
-@if (auth()->user()->isAdmin())
-<a href="{{ route('reports.monthly') }}" class="nav-item {{ request()->routeIs('reports.monthly') ? 'active' : '' }}">
-    <span class="nav-icon">📊</span> Monthly Report
-</a>
-<a href="{{ route('reports.appointments') }}" class="nav-item {{ request()->routeIs('reports.appointments') ? 'active' : '' }}">
-    <span class="nav-icon">📅</span> Appt Report
-</a>
-@endif
 <a href="{{ route('settings.index') }}" class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
     <span class="nav-icon">⚙</span> Settings
 </a>
