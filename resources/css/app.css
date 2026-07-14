@@ -383,7 +383,7 @@ body {
     gap: 0.5rem;
     padding: 0.78rem;
     background: var(--color-coral);
-    color: #17201F;
+    color: var(--color-on-secondary, #17201F);
     border: none;
     border-radius: 0.65rem;
     font-size: 0.9rem;
@@ -824,7 +824,7 @@ body {
     gap: 0.4rem;
     padding: 0.65rem 1.1rem;
     background: var(--color-teal);
-    color: #FFFFFF;
+    color: var(--color-on-primary, #FFFFFF);
     border: none;
     border-radius: 0.6rem;
     font-size: 0.86rem;

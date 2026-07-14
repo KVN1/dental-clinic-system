@@ -34,6 +34,8 @@ class AppSetting extends Model
         'primary_color',
         'secondary_color',
         'theme_preset',
+        'bg_color',
+        'surface_color',
         'receipt_footer_note',
     ];
 

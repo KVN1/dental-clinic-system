@@ -7,26 +7,62 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @php
         $themeSettings = \App\Models\AppSetting::current();
-        $primaryHex   = $themeSettings->primary_color ?? '#2A9D8F';
+        $primaryHex   = $themeSettings->primary_color   ?? '#2A9D8F';
         $secondaryHex = $themeSettings->secondary_color ?? '#FF8966';
+        $bgHex        = $themeSettings->bg_color        ?? '#F7F9F9';
+        $surfaceHex   = $themeSettings->surface_color   ?? '#FFFFFF';
 
-        $hexToRgb = function ($hex) {
+        $hexToRgbArr = function ($hex) {
             $hex = ltrim($hex, '#');
             if (strlen($hex) === 3) {
                 $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
             }
-            return implode(', ', array_map('hexdec', str_split($hex, 2)));
+            return array_map('hexdec', str_split($hex, 2));
+        };
+        $rgbStr = fn($arr) => implode(', ', $arr);
+
+        // Relative luminance (WCAG) to decide readable text color
+        $luminance = function ($rgb) {
+            [$r, $g, $b] = array_map(function ($c) {
+                $c = $c / 255;
+                return $c <= 0.03928 ? $c / 12.92 : pow((($c + 0.055) / 1.055), 2.4);
+            }, $rgb);
+            return 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
         };
 
-        $primaryRgb   = $hexToRgb($primaryHex);
-        $secondaryRgb = $hexToRgb($secondaryHex);
+        // Pick readable ink color against a given background
+        $readableTextOn = function ($bgRgb) use ($luminance) {
+            return $luminance($bgRgb) > 0.5 ? '#12302E' : '#FFFFFF';
+        };
+
+        $primaryRgb   = $hexToRgbArr($primaryHex);
+        $secondaryRgb = $hexToRgbArr($secondaryHex);
+        $bgRgb        = $hexToRgbArr($bgHex);
+        $surfaceRgb   = $hexToRgbArr($surfaceHex);
+
+        // Ink (main text) reads against the page background
+        $inkHex = $readableTextOn($bgRgb);
+        // Muted text: same hue direction as ink, softened
+        $mutedHex = $luminance($bgRgb) > 0.5 ? '#6B7280' : '#A0AAB4';
+
+        // Text that sits on top of primary/secondary colored buttons
+        $onPrimaryHex   = $readableTextOn($primaryRgb);
+        $onSecondaryHex = $readableTextOn($secondaryRgb);
     @endphp
     <style>
         :root {
             --color-teal: {{ $primaryHex }} !important;
             --color-coral: {{ $secondaryHex }} !important;
-            --color-teal-rgb: {{ $primaryRgb }} !important;
-            --color-coral-rgb: {{ $secondaryRgb }} !important;
+            --color-teal-rgb: {{ $rgbStr($primaryRgb) }} !important;
+            --color-coral-rgb: {{ $rgbStr($secondaryRgb) }} !important;
+
+            --color-bg: {{ $bgHex }} !important;
+            --color-surface: {{ $surfaceHex }} !important;
+            --color-ink: {{ $inkHex }} !important;
+            --color-muted: {{ $mutedHex }} !important;
+
+            --color-on-primary: {{ $onPrimaryHex }} !important;
+            --color-on-secondary: {{ $onSecondaryHex }} !important;
         }
     </style>
 </head>

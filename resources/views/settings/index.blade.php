@@ -180,21 +180,23 @@
             <label style="display:block;margin-bottom:10px;">Theme Presets</label>
             <div style="display:flex;gap:10px;flex-wrap:wrap;" id="theme-presets">
                 @php
+                // [label, primary, secondary, bg, surface]
                 $presets = [
-                    'teal-coral'  => ['Teal & Coral (Default)', '#2A9D8F', '#FF8966'],
-                    'blue-orange' => ['Ocean Blue', '#1e4a8a', '#f97316'],
-                    'purple-pink' => ['Royal Purple', '#6d28d9', '#ec4899'],
-                    'green-lime'  => ['Fresh Green', '#15803d', '#84cc16'],
-                    'navy-gold'   => ['Navy & Gold', '#1e293b', '#d4af37'],
-                    'rose-slate'  => ['Rose Slate', '#be123c', '#64748b'],
-                    'mono'        => ['Monochrome', '#333333', '#888888'],
+                    'teal-coral'  => ['Teal & Coral', '#2A9D8F', '#FF8966', '#F7F9F9', '#FFFFFF'],
+                    'ocean-blue'  => ['Ocean Blue',   '#1e4a8a', '#f97316', '#F5F8FC', '#FFFFFF'],
+                    'royal-purple'=> ['Royal Purple', '#6d28d9', '#ec4899', '#FAF8FD', '#FFFFFF'],
+                    'fresh-green' => ['Fresh Green',  '#15803d', '#84cc16', '#F6FAF7', '#FFFFFF'],
+                    'navy-gold'   => ['Navy & Gold',  '#1e293b', '#d4af37', '#F4F5F7', '#FFFFFF'],
+                    'rose-slate'  => ['Rose Slate',   '#be123c', '#64748b', '#FAF7F8', '#FFFFFF'],
+                    'midnight'    => ['Midnight',     '#38bdf8', '#f472b6', '#0f172a', '#1e293b'],
+                    'mono'        => ['Monochrome',   '#333333', '#888888', '#F7F7F7', '#FFFFFF'],
                 ];
                 @endphp
-                @foreach($presets as $key => [$label, $p, $s])
-                <div onclick="applyPreset('{{ $key }}', '{{ $p }}', '{{ $s }}')"
-                     style="cursor:pointer;border:2px solid {{ ($appSettings->theme_preset ?? 'teal-coral') === $key ? '#333' : '#e5e5e5' }};border-radius:10px;padding:8px 10px;text-align:center;width:90px;"
+                @foreach($presets as $key => [$label, $p, $s, $bg, $surface])
+                <div onclick="applyPreset('{{ $key }}', '{{ $p }}', '{{ $s }}', '{{ $bg }}', '{{ $surface }}')"
+                     style="cursor:pointer;border:2px solid {{ ($appSettings->theme_preset ?? 'teal-coral') === $key ? '#333' : '#e5e5e5' }};border-radius:10px;padding:8px 10px;text-align:center;width:90px;background:{{ $bg }};"
                      data-preset="{{ $key }}">
-                    <div style="display:flex;height:24px;border-radius:5px;overflow:hidden;margin-bottom:6px;">
+                    <div style="display:flex;height:24px;border-radius:5px;overflow:hidden;margin-bottom:6px;border:1px solid rgba(0,0,0,0.06);">
                         <div style="flex:1;background:{{ $p }};"></div>
                         <div style="flex:1;background:{{ $s }};"></div>
                     </div>
@@ -202,33 +204,71 @@
                 </div>
                 @endforeach
             </div>
+            <div style="font-size:11px;color:#aaa;margin-top:8px;">Presets set matching background, surface, and accent colors together for a balanced look. Pick one, then fine-tune below if you like.</div>
         </div>
 
         <div class="form-grid" style="margin-top:1.5rem;">
             <div class="field-group">
-                <label>Primary Color</label>
+                <label>Primary Color <span class="optional-tag">buttons, links, active states</span></label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="primary_color" name="primary_color"
                            value="{{ $appSettings->primary_color ?? '#2A9D8F' }}"
                            style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
-                           oninput="document.getElementById('primary_text').value=this.value; clearPresetSelection();">
+                           oninput="document.getElementById('primary_text').value=this.value; clearPresetSelection(); updatePreview();">
                     <input type="text" id="primary_text" value="{{ $appSettings->primary_color ?? '#2A9D8F' }}"
                            style="max-width:110px;font-family:monospace;"
-                           oninput="document.getElementById('primary_color').value=this.value; clearPresetSelection();">
+                           oninput="document.getElementById('primary_color').value=this.value; clearPresetSelection(); updatePreview();">
                 </div>
             </div>
             <div class="field-group">
-                <label>Secondary Color</label>
+                <label>Secondary Color <span class="optional-tag">accents, submit buttons</span></label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="secondary_color" name="secondary_color"
                            value="{{ $appSettings->secondary_color ?? '#FF8966' }}"
                            style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
-                           oninput="document.getElementById('secondary_text').value=this.value; clearPresetSelection();">
+                           oninput="document.getElementById('secondary_text').value=this.value; clearPresetSelection(); updatePreview();">
                     <input type="text" id="secondary_text" value="{{ $appSettings->secondary_color ?? '#FF8966' }}"
                            style="max-width:110px;font-family:monospace;"
-                           oninput="document.getElementById('secondary_color').value=this.value; clearPresetSelection();">
+                           oninput="document.getElementById('secondary_color').value=this.value; clearPresetSelection(); updatePreview();">
                 </div>
             </div>
+            <div class="field-group">
+                <label>Background Color <span class="optional-tag">page background</span></label>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="color" id="bg_color" name="bg_color"
+                           value="{{ $appSettings->bg_color ?? '#F7F9F9' }}"
+                           style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
+                           oninput="document.getElementById('bg_text').value=this.value; clearPresetSelection(); updatePreview();">
+                    <input type="text" id="bg_text" value="{{ $appSettings->bg_color ?? '#F7F9F9' }}"
+                           style="max-width:110px;font-family:monospace;"
+                           oninput="document.getElementById('bg_color').value=this.value; clearPresetSelection(); updatePreview();">
+                </div>
+            </div>
+            <div class="field-group">
+                <label>Surface Color <span class="optional-tag">cards & panels</span></label>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="color" id="surface_color" name="surface_color"
+                           value="{{ $appSettings->surface_color ?? '#FFFFFF' }}"
+                           style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
+                           oninput="document.getElementById('surface_text').value=this.value; clearPresetSelection(); updatePreview();">
+                    <input type="text" id="surface_text" value="{{ $appSettings->surface_color ?? '#FFFFFF' }}"
+                           style="max-width:110px;font-family:monospace;"
+                           oninput="document.getElementById('surface_color').value=this.value; clearPresetSelection(); updatePreview();">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:1.25rem;">
+            <label style="display:block;margin-bottom:8px;">Live Preview</label>
+            <div id="theme-preview" style="border-radius:10px;padding:20px;transition:background 0.2s;">
+                <div id="preview-card" style="border-radius:8px;padding:16px;transition:background 0.2s;">
+                    <div id="preview-heading" style="font-weight:700;font-size:15px;margin-bottom:4px;transition:color 0.2s;">Sample Card Heading</div>
+                    <div id="preview-muted" style="font-size:12px;margin-bottom:12px;transition:color 0.2s;">Muted supporting text sits here.</div>
+                    <button type="button" id="preview-btn-primary" style="border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;margin-right:8px;transition:background 0.2s,color 0.2s;">Primary Button</button>
+                    <button type="button" id="preview-btn-secondary" style="border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;transition:background 0.2s,color 0.2s;">Secondary Button</button>
+                </div>
+            </div>
+            <div style="font-size:11px;color:#aaa;margin-top:6px;">Text colors adjust automatically for readability against whatever background you pick.</div>
         </div>
 
         <input type="hidden" name="theme_preset" id="theme_preset_input" value="{{ $appSettings->theme_preset ?? 'teal-coral' }}">
@@ -239,16 +279,38 @@
     </form>
 
     <script>
-        function applyPreset(key, primary, secondary) {
+        function hexToRgb(hex) {
+            hex = hex.replace('#', '');
+            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            const num = parseInt(hex, 16);
+            return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+        }
+        function luminance([r, g, b]) {
+            const a = [r, g, b].map(v => {
+                v /= 255;
+                return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            });
+            return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+        }
+        function readableOn(hex) {
+            return luminance(hexToRgb(hex)) > 0.5 ? '#12302E' : '#FFFFFF';
+        }
+
+        function applyPreset(key, primary, secondary, bg, surface) {
             document.getElementById('primary_color').value = primary;
             document.getElementById('primary_text').value = primary;
             document.getElementById('secondary_color').value = secondary;
             document.getElementById('secondary_text').value = secondary;
+            document.getElementById('bg_color').value = bg;
+            document.getElementById('bg_text').value = bg;
+            document.getElementById('surface_color').value = surface;
+            document.getElementById('surface_text').value = surface;
             document.getElementById('theme_preset_input').value = key;
 
             document.querySelectorAll('#theme-presets > div').forEach(el => {
                 el.style.borderColor = el.dataset.preset === key ? '#333' : '#e5e5e5';
             });
+            updatePreview();
         }
         function clearPresetSelection() {
             document.getElementById('theme_preset_input').value = 'custom';
@@ -256,6 +318,31 @@
                 el.style.borderColor = '#e5e5e5';
             });
         }
+
+        function updatePreview() {
+            const primary   = document.getElementById('primary_color').value;
+            const secondary = document.getElementById('secondary_color').value;
+            const bg        = document.getElementById('bg_color').value;
+            const surface   = document.getElementById('surface_color').value;
+
+            const ink   = readableOn(bg);
+            const muted = luminance(hexToRgb(bg)) > 0.5 ? '#6B7280' : '#A0AAB4';
+
+            document.getElementById('theme-preview').style.background = bg;
+            document.getElementById('preview-card').style.background = surface;
+            document.getElementById('preview-heading').style.color = ink;
+            document.getElementById('preview-muted').style.color = muted;
+
+            const btnP = document.getElementById('preview-btn-primary');
+            btnP.style.background = primary;
+            btnP.style.color = readableOn(primary);
+
+            const btnS = document.getElementById('preview-btn-secondary');
+            btnS.style.background = secondary;
+            btnS.style.color = readableOn(secondary);
+        }
+
+        document.addEventListener('DOMContentLoaded', updatePreview);
     </script>
 
 </div>
