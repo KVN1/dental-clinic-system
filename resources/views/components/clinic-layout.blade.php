@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'Dashboard' }} — {{ \App\Models\AppSetting::current()->clinic_name ?? 'Dental Clinic' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @php
+        $themeSettings = \App\Models\AppSetting::current();
+        $primaryHex   = $themeSettings->primary_color ?? '#2A9D8F';
+        $secondaryHex = $themeSettings->secondary_color ?? '#FF8966';
+
+        $hexToRgb = function ($hex) {
+            $hex = ltrim($hex, '#');
+            if (strlen($hex) === 3) {
+                $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+            }
+            return implode(', ', array_map('hexdec', str_split($hex, 2)));
+        };
+
+        $primaryRgb   = $hexToRgb($primaryHex);
+        $secondaryRgb = $hexToRgb($secondaryHex);
+    @endphp
+    <style>
+        :root {
+            --color-teal: {{ $primaryHex }} !important;
+            --color-coral: {{ $secondaryHex }} !important;
+            --color-teal-rgb: {{ $primaryRgb }} !important;
+            --color-coral-rgb: {{ $secondaryRgb }} !important;
+        }
+    </style>
 </head>
 <body class="app-body {{ auth()->user()->theme === 'dark' ? 'theme-dark' : '' }}">
 <div class="app-shell" x-data="{ sidebarOpen: false }">

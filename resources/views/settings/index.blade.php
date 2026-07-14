@@ -10,7 +10,7 @@
         </div>
     @endif
 
-    <div class="panel" x-data="{ tab: 'appearance' }">
+    <div class="panel" x-data="{ tab: localStorage.getItem('settingsTab') || 'appearance' }" x-init="$watch('tab', value => localStorage.setItem('settingsTab', value))">
 
         <div class="settings-tabs">
             <button type="button" class="settings-tab" :class="tab === 'appearance' && 'active'" @click="tab = 'appearance'">Appearance</button>
@@ -174,23 +174,89 @@
                     @endforeach
                 </select>
             </div>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+            <label style="display:block;margin-bottom:10px;">Theme Presets</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;" id="theme-presets">
+                @php
+                $presets = [
+                    'teal-coral'  => ['Teal & Coral (Default)', '#2A9D8F', '#FF8966'],
+                    'blue-orange' => ['Ocean Blue', '#1e4a8a', '#f97316'],
+                    'purple-pink' => ['Royal Purple', '#6d28d9', '#ec4899'],
+                    'green-lime'  => ['Fresh Green', '#15803d', '#84cc16'],
+                    'navy-gold'   => ['Navy & Gold', '#1e293b', '#d4af37'],
+                    'rose-slate'  => ['Rose Slate', '#be123c', '#64748b'],
+                    'mono'        => ['Monochrome', '#333333', '#888888'],
+                ];
+                @endphp
+                @foreach($presets as $key => [$label, $p, $s])
+                <div onclick="applyPreset('{{ $key }}', '{{ $p }}', '{{ $s }}')"
+                     style="cursor:pointer;border:2px solid {{ ($appSettings->theme_preset ?? 'teal-coral') === $key ? '#333' : '#e5e5e5' }};border-radius:10px;padding:8px 10px;text-align:center;width:90px;"
+                     data-preset="{{ $key }}">
+                    <div style="display:flex;height:24px;border-radius:5px;overflow:hidden;margin-bottom:6px;">
+                        <div style="flex:1;background:{{ $p }};"></div>
+                        <div style="flex:1;background:{{ $s }};"></div>
+                    </div>
+                    <div style="font-size:10px;color:#666;">{{ $label }}</div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="form-grid" style="margin-top:1.5rem;">
             <div class="field-group">
                 <label>Primary Color</label>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <input type="color" id="primary_color" name="primary_color"
-                           value="{{ $appSettings->primary_color ?? '#1e4a8a' }}"
+                           value="{{ $appSettings->primary_color ?? '#2A9D8F' }}"
                            style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
-                           oninput="document.getElementById('color_text').value=this.value">
-                    <input type="text" id="color_text" value="{{ $appSettings->primary_color ?? '#1e4a8a' }}"
+                           oninput="document.getElementById('primary_text').value=this.value; clearPresetSelection();">
+                    <input type="text" id="primary_text" value="{{ $appSettings->primary_color ?? '#2A9D8F' }}"
                            style="max-width:110px;font-family:monospace;"
-                           oninput="document.getElementById('primary_color').value=this.value">
+                           oninput="document.getElementById('primary_color').value=this.value; clearPresetSelection();">
+                </div>
+            </div>
+            <div class="field-group">
+                <label>Secondary Color</label>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="color" id="secondary_color" name="secondary_color"
+                           value="{{ $appSettings->secondary_color ?? '#FF8966' }}"
+                           style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
+                           oninput="document.getElementById('secondary_text').value=this.value; clearPresetSelection();">
+                    <input type="text" id="secondary_text" value="{{ $appSettings->secondary_color ?? '#FF8966' }}"
+                           style="max-width:110px;font-family:monospace;"
+                           oninput="document.getElementById('secondary_color').value=this.value; clearPresetSelection();">
                 </div>
             </div>
         </div>
-        <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
+
+        <input type="hidden" name="theme_preset" id="theme_preset_input" value="{{ $appSettings->theme_preset ?? 'teal-coral' }}">
+
+        <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:1rem;">
             <button type="submit" class="btn-primary">Save Appearance</button>
         </div>
     </form>
+
+    <script>
+        function applyPreset(key, primary, secondary) {
+            document.getElementById('primary_color').value = primary;
+            document.getElementById('primary_text').value = primary;
+            document.getElementById('secondary_color').value = secondary;
+            document.getElementById('secondary_text').value = secondary;
+            document.getElementById('theme_preset_input').value = key;
+
+            document.querySelectorAll('#theme-presets > div').forEach(el => {
+                el.style.borderColor = el.dataset.preset === key ? '#333' : '#e5e5e5';
+            });
+        }
+        function clearPresetSelection() {
+            document.getElementById('theme_preset_input').value = 'custom';
+            document.querySelectorAll('#theme-presets > div').forEach(el => {
+                el.style.borderColor = '#e5e5e5';
+            });
+        }
+    </script>
 
 </div>
 

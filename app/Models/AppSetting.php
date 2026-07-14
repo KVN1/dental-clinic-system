@@ -32,6 +32,8 @@ class AppSetting extends Model
         'default_tax_rate',
         'show_tax_on_receipt',
         'primary_color',
+        'secondary_color',
+        'theme_preset',
         'receipt_footer_note',
     ];
 
