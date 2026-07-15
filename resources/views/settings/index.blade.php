@@ -252,7 +252,14 @@
                         </div>
                         <div class="field-group">
                             <label for="password">Password</label>
-                            <input id="password" type="password" name="password" required minlength="8">
+                            <input id="password" type="password" name="password" required minlength="8"
+                                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"
+                                   title="At least 8 characters, including an uppercase letter, a lowercase letter, and a number">
+                            <div style="font-size:11px;color:var(--color-muted);margin-top:4px;">Min 8 characters, with uppercase, lowercase, and a number.</div>
+                        </div>
+                        <div class="field-group">
+                            <label for="password_confirmation">Confirm Password</label>
+                            <input id="password_confirmation" type="password" name="password_confirmation" required minlength="8">
                         </div>
                         <div class="field-group">
                             <label for="role">Role</label>

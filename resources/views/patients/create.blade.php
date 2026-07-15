@@ -116,11 +116,6 @@
                         </div>
 
                         <div class="field-group field-group-full">
-                            <label for="medical_conditions">Medical Conditions (notes)</label>
-                            <textarea id="medical_conditions" name="medical_conditions" rows="2">{{ old('medical_conditions') }}</textarea>
-                        </div>
-
-                        <div class="field-group field-group-full">
                             <label for="medications">Current Medications</label>
                             <textarea id="medications" name="medications" rows="2">{{ old('medications') }}</textarea>
                         </div>
@@ -175,6 +170,11 @@
                                 <span>{{ $condition }}</span>
                             </label>
                         @endforeach
+                    </div>
+
+                    <div class="field-group field-group-full" style="margin-top:1rem;">
+                        <label for="medical_conditions">Other Conditions <span class="optional-tag">not listed above</span></label>
+                        <textarea id="medical_conditions" name="medical_conditions" rows="2" placeholder="Any other condition not covered by the checklist">{{ old('medical_conditions') }}</textarea>
                     </div>
                 </div>
 

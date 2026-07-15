@@ -206,7 +206,7 @@
 
                     <div class="field-group">
                         <label for="amount_charged">Amount Charged (₱)</label>
-                        <input id="amount_charged" type="number" step="0.01" min="0" name="amount_charged" value="0">
+                        <input id="amount_charged" type="number" step="0.01" min="0" name="amount_charged" value="0" inputmode="decimal" onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()">
                         <span class="field-warning" x-show="entryType === 'payment'" x-cloak>
                             ⚠ Leave at 0 for balance-only payments.
                         </span>
@@ -214,7 +214,7 @@
 
                     <div class="field-group">
                         <label for="amount_paid">Amount Paid (₱)</label>
-                        <input id="amount_paid" type="number" step="0.01" min="0" name="amount_paid" value="0">
+                        <input id="amount_paid" type="number" step="0.01" min="0" name="amount_paid" value="0" inputmode="decimal" onkeydown="if(['e','E','+','-'].includes(event.key)) event.preventDefault()">
                     </div>
 
                     <div class="field-group" x-show="entryType === 'payment'" x-cloak>
@@ -327,7 +327,7 @@
                         </div>
                         <div class="field-group" style="margin:0;">
                             <label style="font-size:10px;">Quantity</label>
-                            <input type="number" :name="'quantity[' + index + ']'" placeholder="e.g. 21" min="0">
+                            <input type="number" :name="'quantity[' + index + ']'" placeholder="e.g. 21" min="0" inputmode="numeric" onkeydown="if(['e','E','+','-','.'].includes(event.key)) event.preventDefault()">
                         </div>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:10px;margin-bottom:8px;">
@@ -431,10 +431,17 @@
                     <label for="img_label">Label <span class="optional-tag">optional</span></label>
                     <input id="img_label" type="text" name="label" placeholder="e.g. Upper right molar, before extraction">
                 </div>
-                <div class="field-group field-group-full">
+                <div class="field-group field-group-full" x-data="{ previews: [] }">
                     <label for="img_files">Select Image(s)</label>
-                    <input id="img_files" type="file" name="images[]" accept="image/*" multiple required>
+                    <input id="img_files" type="file" name="images[]" accept="image/*" multiple required
+                           @change="previews = []; Array.from($event.target.files).forEach(f => { const r = new FileReader(); r.onload = e => previews.push(e.target.result); r.readAsDataURL(f); })">
                     <div style="font-size:11px;color:var(--color-muted);margin-top:4px;">JPG, PNG, WEBP. Max 10MB per file. You can select multiple at once.</div>
+
+                    <div x-show="previews.length > 0" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+                        <template x-for="(src, i) in previews" :key="i">
+                            <img :src="src" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--color-border, #E7ECEB);">
+                        </template>
+                    </div>
                 </div>
             </div>
 

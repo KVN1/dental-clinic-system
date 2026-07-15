@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\AppSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -119,7 +120,7 @@ class SettingsController extends Controller
         $validated = $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users,email',
-            'password'  => 'required|string|min:8',
+            'password'  => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
             'role'      => 'required|in:admin,staff,dentist',
             'specialty' => 'nullable|string|max:255',
             'color'     => 'nullable|string|max:20',

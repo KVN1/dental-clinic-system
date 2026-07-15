@@ -15,7 +15,7 @@
             <span class="quick-action-icon">＋</span>
             <span class="quick-action-label">Add Patient</span>
         </a>
-        <a href="{{ route('appointments.create') }}" class="quick-action-card">
+        <a href="{{ route('appointments.index') }}" class="quick-action-card">
             <span class="quick-action-icon">▤</span>
             <span class="quick-action-label">Book Appointment</span>
         </a>
