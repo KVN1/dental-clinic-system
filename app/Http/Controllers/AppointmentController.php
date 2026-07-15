@@ -16,7 +16,6 @@ class AppointmentController extends Controller
             ->where('appointment_date', '>=', today())
             ->whereNotIn('status', ['cancelled']);
 
-        // If logged-in user is a dentist and hasn't chosen "view all", show only their own
         $user = auth()->user();
         $filterDentistId = $request->input('dentist_id');
 
@@ -32,8 +31,9 @@ class AppointmentController extends Controller
             ->groupBy(fn ($appt) => $appt->appointment_date->format('Y-m-d'));
 
         $dentists = User::dentists()->orderBy('name')->get();
+        $patients = Patient::orderBy('last_name')->get();
 
-        return view('appointments.index', compact('appointments', 'dentists', 'filterDentistId'));
+        return view('appointments.index', compact('appointments', 'dentists', 'patients', 'filterDentistId'));
     }
 
     // Show the booking form

@@ -98,7 +98,9 @@
         </div>
     @endforelse
 
-<div class="panel" style="margin-top:2rem;" x-data="appointmentCalendar()" x-init="init()">
+<div x-data="appointmentCalendar()" x-init="init()">
+
+<div class="panel" style="margin-top:2rem;">
 
     <div class="panel-header">
         <h2 class="panel-title">Calendar View</h2>
@@ -150,44 +152,99 @@
 
     </div>
 
-    <!-- Day detail modal -->
-    <div x-show="modalOpen" x-cloak
-         style="position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;"
-         @click.self="modalOpen = false"
-         x-transition:enter="transition ease-out duration-150"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100">
+</div>
 
-        <div style="background:var(--color-surface);border-radius:14px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+<!-- Day detail / booking modal -- using proven modal-overlay pattern from clinic-layout -->
+<div class="modal-overlay" x-show="modalOpen" x-cloak
+     @click.self="modalOpen = false; showBookingForm = false"
+     style="display:none;">
 
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <h3 style="font-size:16px;font-weight:700;color:var(--color-ink);margin:0;" x-text="modalDateLabel"></h3>
-                <button type="button" @click="modalOpen = false" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--color-muted);line-height:1;">&times;</button>
-            </div>
+    <div class="modal-box" style="max-width:520px;max-height:85vh;overflow-y:auto;padding:24px;">
 
-            <div x-show="(days[modalDate] || []).length === 0" style="text-align:center;padding:24px 0;color:var(--color-muted);font-size:13px;">
-                No appointments on this day.
-            </div>
-
-            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
-                <template x-for="appt in (days[modalDate] || [])" :key="appt.id">
-                    <a :href="appt.edit_url" style="display:block;padding:10px 12px;border-radius:8px;background:var(--color-bg);text-decoration:none;color:inherit;border-left:3px solid;" :style="{borderLeftColor: appt.dentist_color}">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-weight:600;font-size:13px;color:var(--color-ink);" x-text="appt.time"></span>
-                            <span class="status-tag" :class="'status-' + appt.status" style="font-size:10px;" x-text="appt.status"></span>
-                        </div>
-                        <div style="font-size:13px;color:var(--color-ink);margin-top:2px;" x-text="appt.patient"></div>
-                        <div style="font-size:11px;color:var(--color-muted);margin-top:2px;" x-text="(appt.dentist || 'Unassigned') + (appt.purpose ? ' \u00b7 ' + appt.purpose : '')"></div>
-                    </a>
-                </template>
-            </div>
-
-            <a :href="'{{ route('appointments.create') }}' + '?date=' + modalDate" class="btn-primary" style="width:100%;text-align:center;justify-content:center;display:flex;">
-                + Book Appointment for This Day
-            </a>
-
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:16px;font-weight:700;color:var(--color-ink);margin:0;" x-text="modalDateLabel"></h3>
+            <button type="button" @click="modalOpen = false; showBookingForm = false" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--color-muted);line-height:1;">&times;</button>
         </div>
+
+        <!-- ===== VIEW: Day's appointment list ===== -->
+        <template x-if="!showBookingForm">
+            <div>
+                <div x-show="(days[modalDate] || []).length === 0" style="text-align:center;padding:24px 0;color:var(--color-muted);font-size:13px;">
+                    No appointments on this day.
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+                    <template x-for="appt in (days[modalDate] || [])" :key="appt.id">
+                        <a :href="appt.edit_url" style="display:block;padding:10px 12px;border-radius:8px;background:var(--color-bg);text-decoration:none;color:inherit;border-left:3px solid;" :style="{borderLeftColor: appt.dentist_color}">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span style="font-weight:600;font-size:13px;color:var(--color-ink);" x-text="appt.time"></span>
+                                <span class="status-tag" :class="'status-' + appt.status" style="font-size:10px;" x-text="appt.status"></span>
+                            </div>
+                            <div style="font-size:13px;color:var(--color-ink);margin-top:2px;" x-text="appt.patient"></div>
+                            <div style="font-size:11px;color:var(--color-muted);margin-top:2px;" x-text="(appt.dentist || 'Unassigned') + (appt.purpose ? ' \u00b7 ' + appt.purpose : '')"></div>
+                        </a>
+                    </template>
+                </div>
+
+                <button type="button" class="btn-primary" style="width:100%;text-align:center;justify-content:center;display:flex;" @click="showBookingForm = true">
+                    + Book Appointment for This Day
+                </button>
+            </div>
+        </template>
+
+        <!-- ===== VIEW: Embedded booking form ===== -->
+        <template x-if="showBookingForm">
+            <form method="POST" action="{{ route('appointments.store') }}" class="clinic-form">
+                @csrf
+                <input type="hidden" name="appointment_date" :value="modalDate">
+
+                <div class="form-grid">
+                    <div class="field-group field-group-full">
+                        <label for="modal_patient_id">Patient</label>
+                        <select id="modal_patient_id" name="patient_id" required>
+                            <option value="">— Select Patient —</option>
+                            @foreach ($patients ?? [] as $patient)
+                                <option value="{{ $patient->id }}">{{ $patient->last_name }}, {{ $patient->first_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="modal_dentist_id">Dentist</label>
+                        <select id="modal_dentist_id" name="dentist_id">
+                            <option value="">— Not specified —</option>
+                            @foreach ($dentists as $dentist)
+                                <option value="{{ $dentist->id }}">{{ $dentist->name }}{{ $dentist->specialty ? ' — '.$dentist->specialty : '' }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="modal_appointment_time">Time</label>
+                        <input id="modal_appointment_time" type="time" name="appointment_time" required>
+                    </div>
+
+                    <div class="field-group field-group-full">
+                        <label for="modal_purpose">Purpose</label>
+                        <input id="modal_purpose" type="text" name="purpose" placeholder="e.g. Cleaning, Follow-up, Consultation">
+                    </div>
+
+                    <div class="field-group field-group-full">
+                        <label for="modal_notes">Notes</label>
+                        <textarea id="modal_notes" name="notes" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-footer" style="justify-content:space-between;">
+                    <button type="button" class="btn-secondary" @click="showBookingForm = false">&larr; Back</button>
+                    <button type="submit" class="btn-primary">Book Appointment</button>
+                </div>
+            </form>
+        </template>
+
     </div>
+</div>
 
 </div>
 
@@ -200,6 +257,7 @@ function appointmentCalendar() {
         calendarCells: [],
         days: {},
         modalOpen: false,
+        showBookingForm: false,
         modalDate: null,
         modalDateLabel: '',
 
@@ -274,6 +332,7 @@ function appointmentCalendar() {
 
         openDay(dateStr) {
             this.modalDate = dateStr;
+            this.showBookingForm = false;
             const d = new Date(dateStr + 'T00:00:00');
             this.modalDateLabel = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
             this.modalOpen = true;
