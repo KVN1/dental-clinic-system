@@ -31,6 +31,14 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
+    Route::post('/patients/{patient}/images', [App\Http\Controllers\PatientImageController::class, 'store'])->name('patients.images.store');
+    Route::delete('/patient-images/{patientImage}', [App\Http\Controllers\PatientImageController::class, 'destroy'])->name('patients.images.destroy');
+
+    Route::post('/patients/{patient}/prescriptions', [App\Http\Controllers\PrescriptionController::class, 'store'])->name('patients.prescriptions.store');
+    Route::patch('/prescriptions/{prescription}/status', [App\Http\Controllers\PrescriptionController::class, 'updateStatus'])->name('prescriptions.status');
+    Route::delete('/prescriptions/{prescription}', [App\Http\Controllers\PrescriptionController::class, 'destroy'])->name('prescriptions.destroy');
+    Route::get('/prescriptions/{prescription}/print', [App\Http\Controllers\PrescriptionController::class, 'print'])->name('prescriptions.print');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

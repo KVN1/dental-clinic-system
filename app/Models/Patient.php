@@ -47,4 +47,9 @@ class Patient extends Model
     {
         return $this->hasMany(Appointment::class)->orderBy('appointment_date')->orderBy('appointment_time');
     }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(Prescription::class)->orderBy('date_issued', 'desc');
+    }
 }

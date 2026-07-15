@@ -79,7 +79,9 @@ public function index(Request $request)
         $logs = $patient->logs()->with('dentist')->get();
         $paymentMethods = \App\Models\AppSetting::current()->payment_methods ?? ['Cash'];
         $dentists = \App\Models\User::dentists()->orderBy('name')->get();
-        return view('patients.show', compact('patient', 'logs', 'paymentMethods', 'dentists'));
+        $prescriptions = $patient->prescriptions()->with('items', 'dentist')->get();
+        $images = $patient->images;
+        return view('patients.show', compact('patient', 'logs', 'paymentMethods', 'dentists', 'prescriptions', 'images'));
     }
 
     // Save a new log entry (visit, payment, or note) for a patient

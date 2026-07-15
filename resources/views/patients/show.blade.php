@@ -280,4 +280,210 @@
 
     </div>
 
+<div class="panel profile-bottom-panel" style="margin-top:1.5rem;" x-data="{ showRxForm: false, rxItems: [{}] }">
+
+    <div class="panel-header">
+        <h2 class="panel-title">Prescriptions</h2>
+        <button type="button" class="btn-primary" style="font-size:12px;padding:6px 14px;" @click="showRxForm = !showRxForm">
+            <span x-text="showRxForm ? 'Cancel' : '+ New Prescription'"></span>
+        </button>
+    </div>
+
+    <!-- New Prescription Form -->
+    <div x-show="showRxForm" x-cloak style="margin-bottom:1.5rem;padding:16px;background:var(--color-bg);border-radius:10px;">
+        <form method="POST" action="{{ route('patients.prescriptions.store', $patient) }}" class="clinic-form">
+            @csrf
+
+            <div class="form-grid" style="margin-bottom:12px;">
+                <div class="field-group">
+                    <label for="rx_date_issued">Date Issued</label>
+                    <input id="rx_date_issued" type="date" name="date_issued" value="{{ now()->format('Y-m-d') }}" required>
+                </div>
+                <div class="field-group">
+                    <label for="rx_dentist_id">Prescribing Dentist</label>
+                    <select id="rx_dentist_id" name="dentist_id">
+                        <option value="">— Not specified —</option>
+                        @foreach($dentists ?? [] as $d)
+                            <option value="{{ $d->id }}" {{ auth()->user()->isDentist() && auth()->id() === $d->id ? 'selected' : '' }}>
+                                {{ $d->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <label style="display:block;margin-bottom:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-muted);">Medications</label>
+
+            <template x-for="(item, index) in rxItems" :key="index">
+                <div style="border:1px solid var(--color-border, #E7ECEB);border-radius:8px;padding:12px;margin-bottom:10px;background:var(--color-surface);">
+                    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:8px;">
+                        <div class="field-group" style="margin:0;">
+                            <label style="font-size:10px;">Medication Name</label>
+                            <input type="text" :name="'medication_name[' + index + ']'" placeholder="e.g. Amoxicillin" required>
+                        </div>
+                        <div class="field-group" style="margin:0;">
+                            <label style="font-size:10px;">Dosage</label>
+                            <input type="text" :name="'dosage[' + index + ']'" placeholder="e.g. 500mg">
+                        </div>
+                        <div class="field-group" style="margin:0;">
+                            <label style="font-size:10px;">Quantity</label>
+                            <input type="number" :name="'quantity[' + index + ']'" placeholder="e.g. 21" min="0">
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:10px;margin-bottom:8px;">
+                        <div class="field-group" style="margin:0;">
+                            <label style="font-size:10px;">Frequency</label>
+                            <input type="text" :name="'frequency[' + index + ']'" placeholder="e.g. 3x daily">
+                        </div>
+                        <div class="field-group" style="margin:0;">
+                            <label style="font-size:10px;">Duration</label>
+                            <input type="text" :name="'duration[' + index + ']'" placeholder="e.g. 7 days">
+                        </div>
+                        <div class="field-group" style="margin:0;">
+                            <label style="font-size:10px;">Instructions</label>
+                            <input type="text" :name="'instructions[' + index + ']'" placeholder="e.g. Take after meals">
+                        </div>
+                    </div>
+                    <button type="button" x-show="rxItems.length > 1" @click="rxItems.splice(index, 1)" style="background:none;border:none;color:#D9534F;font-size:11px;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;">Remove medication</button>
+                </div>
+            </template>
+
+            <button type="button" class="btn-secondary" style="font-size:12px;padding:6px 14px;margin-bottom:14px;" @click="rxItems.push({})">
+                + Add Another Medication
+            </button>
+
+            <div class="field-group" style="margin-bottom:14px;">
+                <label for="rx_notes">Additional Notes <span class="optional-tag">optional</span></label>
+                <textarea id="rx_notes" name="notes" rows="2" placeholder="Any general notes for this prescription"></textarea>
+            </div>
+
+            <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
+                <button type="submit" class="btn-primary">Save Prescription</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Past Prescriptions List -->
+    @forelse($prescriptions ?? [] as $rx)
+        <div style="border:1px solid var(--color-border, #E7ECEB);border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div>
+                    <div style="font-weight:600;font-size:13px;color:var(--color-ink);">
+                        {{ $rx->date_issued->format('F d, Y') }}
+                        <span class="status-tag status-{{ $rx->status === 'active' ? 'confirmed' : ($rx->status === 'completed' ? 'completed' : 'cancelled') }}" style="margin-left:8px;font-size:10px;">{{ ucfirst($rx->status) }}</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--color-muted);margin-top:2px;">
+                        {{ $rx->dentist->name ?? 'Dentist not specified' }} &middot; {{ $rx->items->count() }} medication{{ $rx->items->count() !== 1 ? 's' : '' }}
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <a href="{{ route('prescriptions.print', $rx) }}" target="_blank" class="pill-btn">Print</a>
+                    <form method="POST" action="{{ route('prescriptions.destroy', $rx) }}" onsubmit="return confirm('Delete this prescription?')" style="margin:0;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="pill-btn pill-btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                @foreach($rx->items as $item)
+                    <span style="font-size:11px;background:var(--color-bg);padding:3px 10px;border-radius:12px;color:var(--color-ink);">
+                        {{ $item->medication_name }}{{ $item->dosage ? ' ' . $item->dosage : '' }}
+                    </span>
+                @endforeach
+            </div>
+        </div>
+    @empty
+        <p style="text-align:center;color:var(--color-muted);font-size:13px;padding:20px 0;">No prescriptions recorded yet.</p>
+    @endforelse
+
+</div>
+
+<div class="panel profile-bottom-panel" style="margin-top:1.5rem;" x-data="{ showUploadForm: false, lightboxUrl: null }">
+
+    <div class="panel-header">
+        <h2 class="panel-title">X-Rays &amp; Images</h2>
+        <button type="button" class="btn-primary" style="font-size:12px;padding:6px 14px;" @click="showUploadForm = !showUploadForm">
+            <span x-text="showUploadForm ? 'Cancel' : '+ Upload Image'"></span>
+        </button>
+    </div>
+
+    <!-- Upload Form -->
+    <div x-show="showUploadForm" x-cloak style="margin-bottom:1.5rem;padding:16px;background:var(--color-bg);border-radius:10px;">
+        <form method="POST" action="{{ route('patients.images.store', $patient) }}" enctype="multipart/form-data" class="clinic-form">
+            @csrf
+
+            <div class="form-grid" style="margin-bottom:12px;">
+                <div class="field-group">
+                    <label for="img_type">Type</label>
+                    <select id="img_type" name="type" required>
+                        <option value="xray">X-Ray</option>
+                        <option value="photo">Clinical Photo</option>
+                        <option value="document">Document Scan</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="img_taken_date">Date Taken</label>
+                    <input id="img_taken_date" type="date" name="taken_date" value="{{ now()->format('Y-m-d') }}">
+                </div>
+                <div class="field-group field-group-full">
+                    <label for="img_label">Label <span class="optional-tag">optional</span></label>
+                    <input id="img_label" type="text" name="label" placeholder="e.g. Upper right molar, before extraction">
+                </div>
+                <div class="field-group field-group-full">
+                    <label for="img_files">Select Image(s)</label>
+                    <input id="img_files" type="file" name="images[]" accept="image/*" multiple required>
+                    <div style="font-size:11px;color:var(--color-muted);margin-top:4px;">JPG, PNG, WEBP. Max 10MB per file. You can select multiple at once.</div>
+                </div>
+            </div>
+
+            <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
+                <button type="submit" class="btn-primary">Upload</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Image Gallery Grid -->
+    @forelse(($images ?? collect())->groupBy('type') as $type => $typeImages)
+        <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-muted);margin-bottom:10px;">
+                {{ ucfirst($type) }}s ({{ $typeImages->count() }})
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));gap:12px;">
+                @foreach($typeImages as $img)
+                    <div style="border:1px solid var(--color-border, #E7ECEB);border-radius:10px;overflow:hidden;background:var(--color-surface);">
+                        <div @click="lightboxUrl = '{{ asset('storage/' . $img->file_path) }}'"
+                             style="height:110px;background-image:url('{{ asset('storage/' . $img->file_path) }}');background-size:cover;background-position:center;cursor:pointer;"></div>
+                        <div style="padding:8px 10px;">
+                            <div style="font-size:11px;font-weight:600;color:var(--color-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ $img->label }}">
+                                {{ $img->label ?: 'Untitled' }}
+                            </div>
+                            <div style="font-size:10px;color:var(--color-muted);margin-top:2px;display:flex;justify-content:space-between;align-items:center;">
+                                <span>{{ $img->taken_date?->format('M d, Y') }}</span>
+                                <form method="POST" action="{{ route('patients.images.destroy', $img) }}" onsubmit="return confirm('Delete this image?')" style="margin:0;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="background:none;border:none;color:#D9534F;font-size:10px;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @empty
+        <p style="text-align:center;color:var(--color-muted);font-size:13px;padding:20px 0;">No images uploaded yet.</p>
+    @endforelse
+
+    <!-- Lightbox -->
+    <div x-show="lightboxUrl" x-cloak
+         style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:30px;"
+         @click.self="lightboxUrl = null">
+        <img :src="lightboxUrl" style="max-width:90%;max-height:90%;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+        <button type="button" @click="lightboxUrl = null" style="position:absolute;top:20px;right:30px;background:none;border:none;color:white;font-size:32px;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+
+</div>
+
 </x-clinic-layout>

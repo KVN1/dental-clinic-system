@@ -2456,6 +2456,38 @@ body {
     border-color: #D9534F;
     color: #D9534F;
 }
+
+.pill-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border, #E7ECEB);
+    background: var(--color-surface);
+    color: var(--color-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.pill-btn:hover {
+    border-color: var(--color-teal);
+    color: var(--color-teal);
+    background: rgba(var(--color-teal-rgb), 0.06);
+}
+
+.pill-btn-danger {
+    border-color: rgba(217, 83, 79, 0.3);
+    color: #D9534F;
+}
+
+.pill-btn-danger:hover {
+    border-color: #D9534F;
+    color: #D9534F;
+    background: rgba(217, 83, 79, 0.06);
+}
 .profile-header-actions {
     display: flex;
     align-items: center;
