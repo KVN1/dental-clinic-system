@@ -73,10 +73,35 @@ body {
     justify-content: center;
     overflow: hidden;
     background:
-        radial-gradient(circle at 20% 25%, rgba(var(--color-teal-rgb), 0.10), transparent 42%),
-        radial-gradient(circle at 85% 80%, rgba(var(--color-coral-rgb), 0.08), transparent 45%),
-        var(--color-bg);
+        radial-gradient(circle at 15% 20%, rgba(var(--color-teal-rgb), 0.13), transparent 38%),
+        radial-gradient(circle at 88% 15%, rgba(var(--color-coral-rgb), 0.09), transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(var(--color-coral-rgb), 0.10), transparent 42%),
+        radial-gradient(circle at 10% 90%, rgba(var(--color-teal-rgb), 0.08), transparent 40%),
+        linear-gradient(160deg, var(--color-bg) 0%, color-mix(in srgb, var(--color-bg) 92%, var(--color-teal) 8%) 100%);
+    background-size: 200% 200%;
+    animation: meshShift 30s ease-in-out infinite alternate;
     padding: 2rem;
+}
+
+@keyframes meshShift {
+    0%   { background-position: 0% 0%; }
+    50%  { background-position: 40% 30%; }
+    100% { background-position: 10% 60%; }
+}
+
+/* Faint grid overlay for texture and depth */
+.login-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(var(--color-teal-rgb), 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--color-teal-rgb), 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 75%);
 }
 
 .stage-grain {
@@ -97,6 +122,108 @@ body {
     z-index: 1;
     background: radial-gradient(circle, rgba(var(--color-teal-rgb), 0.18), transparent 65%);
     pointer-events: none;
+}
+
+.stage-glow-secondary {
+    position: absolute;
+    bottom: -25%;
+    right: -15%;
+    width: 55%;
+    height: 65%;
+    z-index: 1;
+    background: radial-gradient(circle, rgba(var(--color-coral-rgb), 0.14), transparent 65%);
+    pointer-events: none;
+    animation: drift 22s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(-3%, -4%) scale(1.06); }
+    100% { transform: translate(2%, 3%) scale(0.97); }
+}
+
+/* Large soft-blurred drifting orbs, layered for depth */
+.orbs {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(50px);
+    opacity: 0.35;
+    animation: orbFloat ease-in-out infinite alternate;
+}
+
+.orb-1 {
+    width: 260px;
+    height: 260px;
+    top: 8%;
+    right: 12%;
+    background: radial-gradient(circle, rgba(var(--color-teal-rgb), 0.5), transparent 70%);
+    animation-duration: 26s;
+}
+
+.orb-2 {
+    width: 180px;
+    height: 180px;
+    bottom: 14%;
+    left: 6%;
+    background: radial-gradient(circle, rgba(var(--color-coral-rgb), 0.45), transparent 70%);
+    animation-duration: 20s;
+    animation-delay: -6s;
+}
+
+.orb-3 {
+    width: 130px;
+    height: 130px;
+    top: 45%;
+    right: 30%;
+    background: radial-gradient(circle, rgba(var(--color-teal-rgb), 0.35), transparent 70%);
+    animation-duration: 32s;
+    animation-delay: -12s;
+}
+
+@keyframes orbFloat {
+    0%   { transform: translate(0, 0); }
+    50%  { transform: translate(3%, -6%); }
+    100% { transform: translate(-4%, 4%); }
+}
+
+/* Subtle shimmer sweep across the login card */
+.login-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        100deg,
+        transparent,
+        rgba(255, 255, 255, 0.06) 40%,
+        rgba(255, 255, 255, 0.10) 50%,
+        rgba(255, 255, 255, 0.06) 60%,
+        transparent
+    );
+    z-index: 2;
+    pointer-events: none;
+    animation: shimmerSweep 7s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+@keyframes shimmerSweep {
+    0%, 92%, 100% { left: -150%; }
+    45% { left: 150%; }
 }
 
 .stage-tooth {

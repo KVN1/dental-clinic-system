@@ -13,6 +13,13 @@
 
         <div class="stage-grain" aria-hidden="true"></div>
         <div class="stage-glow" aria-hidden="true"></div>
+        <div class="stage-glow-secondary" aria-hidden="true"></div>
+
+        <div class="orbs" aria-hidden="true">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
 
         <svg class="stage-tooth" viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M60 10C40 10 25 22 22 42C20 55 24 68 28 82C31 93 33 105 38 118C40 123 44 128 49 128C55 128 56 112 60 100C64 112 65 128 71 128C76 128 80 123 82 118C87 105 89 93 92 82C96 68 100 55 98 42C95 22 80 10 60 10Z"
