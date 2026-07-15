@@ -167,6 +167,18 @@
                         <input id="tooth_number" type="text" name="tooth_number" value="{{ old('tooth_number') }}" placeholder="e.g. #14, #15">
                     </div>
 
+                    <div class="field-group" x-show="entryType === 'visit'" x-cloak>
+                        <label for="log_dentist_id">Dentist</label>
+                        <select id="log_dentist_id" name="dentist_id">
+                            <option value="">— Not specified —</option>
+                            @foreach($dentists ?? [] as $d)
+                                <option value="{{ $d->id }}" {{ auth()->user()->isDentist() && auth()->id() === $d->id ? 'selected' : '' }}>
+                                    {{ $d->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="field-group field-group-full">
                         <label for="description">Description</label>
                         <input
@@ -252,7 +264,12 @@
                                     @endif
                                 </div>
                             @endif
-                            <div class="timeline-meta">Logged by {{ $log->recorded_by }}</div>
+                            <div class="timeline-meta">
+                                Logged by {{ $log->recorded_by }}
+                                @if($log->dentist)
+                                    &middot; Dentist: {{ $log->dentist->name }}
+                                @endif
+                            </div>
                         </div>
                     </div>
                 @empty

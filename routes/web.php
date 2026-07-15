@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/appointments/{appointment}/edit', [AppointmentController::class, 'edit'])->name('appointments.edit');
     Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
     Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
+Route::get('/appointments/calendar-data', [App\Http\Controllers\CalendarController::class, 'month'])->name('appointments.calendar.data');
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings/theme', [SettingsController::class, 'toggleTheme'])->name('settings.theme');

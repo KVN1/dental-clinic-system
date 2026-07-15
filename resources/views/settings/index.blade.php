@@ -214,7 +214,14 @@
                             <tr>
                                 <td>{{ $u->name }}</td>
                                 <td>{{ $u->email }}</td>
-                                <td><span class="status-tag {{ $u->role === 'admin' ? 'status-completed' : 'status-scheduled' }}">{{ ucfirst($u->role) }}</span></td>
+                                <td>
+                                    <span class="status-tag {{ $u->role === 'admin' ? 'status-completed' : ($u->role === 'dentist' ? 'status-confirmed' : 'status-scheduled') }}">
+                                        {{ ucfirst($u->role) }}
+                                    </span>
+                                    @if($u->role === 'dentist' && $u->specialty)
+                                        <span style="font-size:11px;color:var(--color-muted);display:block;margin-top:2px;">{{ $u->specialty }}</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @if ($u->id !== auth()->id())
                                         <form method="POST" action="{{ route('settings.users.destroy', $u) }}" onsubmit="return confirm('Remove this account?')">
@@ -232,7 +239,7 @@
                 </table>
 
                 <h3 class="form-section-title">Add New Account</h3>
-                <form method="POST" action="{{ route('settings.users.store') }}" class="clinic-form">
+                <form method="POST" action="{{ route('settings.users.store') }}" class="clinic-form" x-data="{ selectedRole: 'staff' }">
                     @csrf
                     <div class="form-grid">
                         <div class="field-group">
@@ -249,10 +256,22 @@
                         </div>
                         <div class="field-group">
                             <label for="role">Role</label>
-                            <select id="role" name="role" required>
+                            <select id="role" name="role" x-model="selectedRole" required>
                                 <option value="staff">Staff</option>
+                                <option value="dentist">Dentist</option>
                                 <option value="admin">Admin</option>
                             </select>
+                        </div>
+                        <div class="field-group" x-show="selectedRole === 'dentist'" x-cloak>
+                            <label for="specialty">Specialty <span class="optional-tag">optional</span></label>
+                            <input id="specialty" type="text" name="specialty" placeholder="e.g. Orthodontics, General Dentistry">
+                        </div>
+                        <div class="field-group" x-show="selectedRole === 'dentist'" x-cloak>
+                            <label for="dentist_color">Calendar Color</label>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <input type="color" id="dentist_color" name="color" value="#2A9D8F" style="width:44px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;">
+                                <span style="font-size:11px;color:var(--color-muted);">Used to color-code their appointments</span>
+                            </div>
                         </div>
                     </div>
                     <div class="form-footer" style="justify-content: flex-start;">

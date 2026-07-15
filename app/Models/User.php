@@ -18,6 +18,16 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isDentist()
+    {
+        return $this->role === 'dentist';
+    }
+
+    public function isStaff()
+    {
+        return $this->role === 'staff';
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -29,6 +39,9 @@ class User extends Authenticatable
         'password',
         'role',
         'theme',
+        'specialty',
+        'color',
+        'is_active',
     ];
 
     /**
@@ -51,6 +64,23 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'dentist_id');
+    }
+
+    public function patientLogs()
+    {
+        return $this->hasMany(PatientLog::class, 'dentist_id');
+    }
+
+    // Scope to only pull dentist accounts, for dropdowns etc.
+    public function scopeDentists($query)
+    {
+        return $query->where('role', 'dentist')->where('is_active', true);
     }
 }

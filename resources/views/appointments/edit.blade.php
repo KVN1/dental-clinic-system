@@ -21,6 +21,19 @@
                     </div>
 
                     <div class="field-group">
+                        <label for="dentist_id">Dentist</label>
+                        <select id="dentist_id" name="dentist_id">
+                            <option value="">— Not specified —</option>
+                            @foreach ($dentists as $dentist)
+                                <option value="{{ $dentist->id }}" {{ old('dentist_id', $appointment->dentist_id) == $dentist->id ? 'selected' : '' }}>
+                                    {{ $dentist->name }}{{ $dentist->specialty ? ' — '.$dentist->specialty : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('dentist_id') <span class="field-error">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="field-group">
                         <label for="appointment_date">Date</label>
                         <input id="appointment_date" type="date" name="appointment_date" value="{{ old('appointment_date', optional($appointment->appointment_date)->format('Y-m-d')) }}" required>
                         @error('appointment_date') <span class="field-error">{{ $message }}</span> @enderror

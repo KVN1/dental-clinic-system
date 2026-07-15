@@ -117,17 +117,22 @@ class SettingsController extends Controller
     public function storeUser(Request $request)
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-            'role'     => 'required|in:admin,staff',
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|email|unique:users,email',
+            'password'  => 'required|string|min:8',
+            'role'      => 'required|in:admin,staff,dentist',
+            'specialty' => 'nullable|string|max:255',
+            'color'     => 'nullable|string|max:20',
         ]);
 
         User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role'     => $validated['role'],
+            'name'      => $validated['name'],
+            'email'     => $validated['email'],
+            'password'  => Hash::make($validated['password']),
+            'role'      => $validated['role'],
+            'specialty' => $validated['specialty'] ?? null,
+            'color'     => $validated['color'] ?? '#2A9D8F',
+            'is_active' => true,
         ]);
 
         return back()->with('success', 'Account created successfully.');

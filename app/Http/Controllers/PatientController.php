@@ -76,9 +76,10 @@ public function index(Request $request)
     // Show one patient's profile + history
     public function show(Patient $patient)
     {
-        $logs = $patient->logs;
+        $logs = $patient->logs()->with('dentist')->get();
         $paymentMethods = \App\Models\AppSetting::current()->payment_methods ?? ['Cash'];
-        return view('patients.show', compact('patient', 'logs', 'paymentMethods'));
+        $dentists = \App\Models\User::dentists()->orderBy('name')->get();
+        return view('patients.show', compact('patient', 'logs', 'paymentMethods', 'dentists'));
     }
 
     // Save a new log entry (visit, payment, or note) for a patient
@@ -92,6 +93,7 @@ $validated = $request->validate([
             'amount_charged' => 'nullable|numeric|min:0',
             'amount_paid' => 'nullable|numeric|min:0',
             'payment_method' => 'nullable|string|max:50',
+            'dentist_id' => 'nullable|exists:users,id',
         ]);
 
 $validated['amount_charged'] = $validated['amount_charged'] ?? 0;

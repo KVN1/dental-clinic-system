@@ -4,29 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
-    // List upcoming appointments, grouped by date
-    public function index()
+    // List upcoming appointments, grouped by date, optionally filtered by dentist
+    public function index(Request $request)
     {
-        $appointments = Appointment::with('patient')
+        $query = Appointment::with(['patient', 'dentist'])
             ->where('appointment_date', '>=', today())
-            ->whereNotIn('status', ['cancelled'])
-            ->orderBy('appointment_date')
+            ->whereNotIn('status', ['cancelled']);
+
+        // If logged-in user is a dentist and hasn't chosen "view all", show only their own
+        $user = auth()->user();
+        $filterDentistId = $request->input('dentist_id');
+
+        if ($filterDentistId) {
+            $query->where('dentist_id', $filterDentistId);
+        } elseif ($user->isDentist() && !$request->boolean('view_all')) {
+            $query->where('dentist_id', $user->id);
+        }
+
+        $appointments = $query->orderBy('appointment_date')
             ->orderBy('appointment_time')
             ->get()
             ->groupBy(fn ($appt) => $appt->appointment_date->format('Y-m-d'));
 
-        return view('appointments.index', compact('appointments'));
+        $dentists = User::dentists()->orderBy('name')->get();
+
+        return view('appointments.index', compact('appointments', 'dentists', 'filterDentistId'));
     }
 
     // Show the booking form
     public function create()
     {
         $patients = Patient::orderBy('last_name')->get();
-        return view('appointments.create', compact('patients'));
+        $dentists = User::dentists()->orderBy('name')->get();
+        return view('appointments.create', compact('patients', 'dentists'));
     }
 
     // Save a new appointment
@@ -34,6 +49,7 @@ class AppointmentController extends Controller
     {
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
+            'dentist_id' => 'nullable|exists:users,id',
             'appointment_date' => 'required|date',
             'appointment_time' => 'required',
             'purpose' => 'nullable|string|max:255',
@@ -62,7 +78,8 @@ class AppointmentController extends Controller
     public function edit(Appointment $appointment)
     {
         $patients = Patient::orderBy('last_name')->get();
-        return view('appointments.edit', compact('appointment', 'patients'));
+        $dentists = User::dentists()->orderBy('name')->get();
+        return view('appointments.edit', compact('appointment', 'patients', 'dentists'));
     }
 
     // Update an appointment
@@ -70,6 +87,7 @@ class AppointmentController extends Controller
     {
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
+            'dentist_id' => 'nullable|exists:users,id',
             'appointment_date' => 'required|date',
             'appointment_time' => 'required',
             'purpose' => 'nullable|string|max:255',
