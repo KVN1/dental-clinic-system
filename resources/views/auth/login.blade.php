@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sign In — Crosby Dental Clinic</title>
+    @php $loginClinic = \App\Models\AppSetting::current(); @endphp
+    <title>Sign In — {{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen">
@@ -26,12 +27,21 @@
 
         <!-- Bottom-left brand copy -->
         <div class="stage-copy">
-            <img src="{{ asset('images/crosby-logo.png') }}" alt="Crosby Dental Clinic" class="stage-logo">
+            @if($loginClinic->logo)
+                <img src="{{ asset('storage/' . $loginClinic->logo) }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="stage-logo">
+            @else
+                <img src="{{ asset('images/crosby-logo.png') }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="stage-logo">
+            @endif
 
             <span class="stage-tag">
                 <span class="tag-dot"></span> DENTAL PRACTICE SYSTEM
             </span>
-            <h1 class="font-display stage-title">Crosby<br><span>Dental Clinic</span></h1>
+            @php
+                $nameParts = explode(' ', $loginClinic->clinic_name ?? 'Crosby Dental Clinic', 2);
+                $firstWord = $nameParts[0] ?? 'Crosby';
+                $restWords = $nameParts[1] ?? 'Dental Clinic';
+            @endphp
+            <h1 class="font-display stage-title">{{ $firstWord }}<br><span>{{ $restWords }}</span></h1>
             <p class="stage-subtitle">Manage patients, appointments, and balances — all in one place.</p>
 
             <div class="stage-dots">
@@ -43,10 +53,14 @@
         <div class="login-card">
             <div class="login-card-header">
                 <div class="login-mark">
-                    <img src="{{ asset('images/crosby-logo.png') }}" alt="Crosby Dental Clinic" class="login-mark-logo">
+                    @if($loginClinic->logo)
+                        <img src="{{ asset('storage/' . $loginClinic->logo) }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="login-mark-logo">
+                    @else
+                        <img src="{{ asset('images/crosby-logo.png') }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="login-mark-logo">
+                    @endif
                 </div>
                 <div>
-                    <div class="login-clinic-name">Crosby Dental Clinic</div>
+                    <div class="login-clinic-name">{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}</div>
                     <div class="login-portal-label">CLINIC PORTAL</div>
                 </div>
             </div>
@@ -129,7 +143,7 @@
                 </button>
             </div>
 
-            <p class="login-footnote">© 2026 Crosby Dental Clinic — Demo Mode</p>
+            <p class="login-footnote">© {{ date('Y') }} {{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }} — Demo Mode</p>
         </div>
 
     </div>
