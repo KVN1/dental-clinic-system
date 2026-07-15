@@ -77,7 +77,8 @@ public function index(Request $request)
     public function show(Patient $patient)
     {
         $logs = $patient->logs;
-        return view('patients.show', compact('patient', 'logs'));
+        $paymentMethods = \App\Models\AppSetting::current()->payment_methods ?? ['Cash'];
+        return view('patients.show', compact('patient', 'logs', 'paymentMethods'));
     }
 
     // Save a new log entry (visit, payment, or note) for a patient
@@ -90,6 +91,7 @@ $validated = $request->validate([
             'description' => 'nullable|string',
             'amount_charged' => 'nullable|numeric|min:0',
             'amount_paid' => 'nullable|numeric|min:0',
+            'payment_method' => 'nullable|string|max:50',
         ]);
 
 $validated['amount_charged'] = $validated['amount_charged'] ?? 0;

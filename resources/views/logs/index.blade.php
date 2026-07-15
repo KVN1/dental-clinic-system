@@ -74,7 +74,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="empty-row">No logs match your filters.</td>
+                        <td colspan="7" class="empty-row">No logs match your filters.</td>
                     </tr>
                 @endforelse
             </tbody>

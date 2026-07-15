@@ -22,331 +22,6 @@
             @endif
         </div>
 
-        <!-- ===== Clinic Settings Tab ===== -->
-<div x-show="tab === 'clinic'" class="settings-panel">
-
-    {{-- SECTION 1: CLINIC IDENTITY --}}
-    <form method="POST" action="{{ route('settings.clinic') }}" enctype="multipart/form-data" class="clinic-form">
-        @csrf
-        <input type="hidden" name="section" value="identity">
-        <h3 class="form-section-title">Clinic Identity</h3>
-        <div class="field-group" style="margin-bottom:1.25rem;">
-            <label>Clinic Logo</label>
-            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-                @if($appSettings->logo)
-                    <img src="{{ asset('storage/' . $appSettings->logo) }}" style="height:60px;border-radius:8px;border:1px solid #dce6f7;padding:4px;background:#fff;">
-                    <a href="{{ route('settings.clinic.remove-logo') }}" onclick="return confirm('Remove logo?')" style="color:#D96A48;font-size:13px;text-decoration:none;">Remove</a>
-                @else
-                    <div style="height:60px;width:60px;border-radius:10px;background:#dce6f7;display:flex;align-items:center;justify-content:center;font-size:26px;color:#1e4a8a;font-weight:bold;">
-                        {{ strtoupper(substr($appSettings->clinic_name ?? 'D', 0, 1)) }}
-                    </div>
-                @endif
-                <div>
-                    <input type="file" name="logo" accept="image/*" style="font-size:13px;">
-                    <div style="font-size:11px;color:#aaa;margin-top:4px;">PNG, JPG, SVG. Max 2MB.</div>
-                </div>
-            </div>
-        </div>
-        <div class="form-grid">
-            <div class="field-group">
-                <label>Clinic Name</label>
-                <input type="text" name="clinic_name" value="{{ old('clinic_name', $appSettings->clinic_name) }}" placeholder="e.g. Clear Smile Dental Clinic">
-            </div>
-            <div class="field-group">
-                <label>Tagline <span class="optional-tag">optional</span></label>
-                <input type="text" name="tagline" value="{{ old('tagline', $appSettings->tagline) }}" placeholder="e.g. Your Smile, Our Priority">
-            </div>
-        </div>
-        <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
-            <button type="submit" class="btn-primary">Save Identity</button>
-        </div>
-    </form>
-
-    <hr style="border:none;border-top:1px solid #eef2ff;margin:1.5rem 0;">
-
-    {{-- SECTION 2: CONTACT INFO --}}
-    <form method="POST" action="{{ route('settings.clinic') }}" class="clinic-form">
-        @csrf
-        <input type="hidden" name="section" value="contact">
-        <h3 class="form-section-title">Contact Information</h3>
-        <div class="form-grid">
-            <div class="field-group" style="grid-column:span 2;">
-                <label>Address</label>
-                <input type="text" name="address" value="{{ old('address', $appSettings->address) }}" placeholder="e.g. 123 Main St, Baguio City">
-            </div>
-            <div class="field-group">
-                <label>Phone</label>
-                <input type="text" name="phone" value="{{ old('phone', $appSettings->phone) }}" placeholder="+63 912 345 6789">
-            </div>
-            <div class="field-group">
-                <label>Email</label>
-                <input type="email" name="email" value="{{ old('email', $appSettings->email) }}" placeholder="clinic@email.com">
-            </div>
-            <div class="field-group">
-                <label>Website <span class="optional-tag">optional</span></label>
-                <input type="text" name="website" value="{{ old('website', $appSettings->website) }}" placeholder="https://www.yourclinic.com">
-            </div>
-            <div class="field-group">
-                <label>TIN <span class="optional-tag">optional</span></label>
-                <input type="text" name="tin" value="{{ old('tin', $appSettings->tin) }}" placeholder="000-000-000-000">
-            </div>
-        </div>
-        <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
-            <button type="submit" class="btn-primary">Save Contact Info</button>
-        </div>
-    </form>
-
-    <hr style="border:none;border-top:1px solid #eef2ff;margin:1.5rem 0;">
-
-    {{-- SECTION 3: CURRENCY & BILLING --}}
-    <form method="POST" action="{{ route('settings.clinic') }}" class="clinic-form">
-        @csrf
-        <input type="hidden" name="section" value="billing">
-        <h3 class="form-section-title">Currency & Billing</h3>
-        @php
-        $currencies = ['PHP'=>['Philippine Peso','₱'],'USD'=>['US Dollar','$'],'EUR'=>['Euro','€'],'GBP'=>['British Pound','£'],'JPY'=>['Japanese Yen','¥'],'AUD'=>['Australian Dollar','A$'],'CAD'=>['Canadian Dollar','C$'],'SGD'=>['Singapore Dollar','S$'],'HKD'=>['Hong Kong Dollar','HK$'],'KRW'=>['South Korean Won','₩'],'CNY'=>['Chinese Yuan','¥'],'INR'=>['Indian Rupee','₹'],'MYR'=>['Malaysian Ringgit','RM'],'THB'=>['Thai Baht','฿'],'IDR'=>['Indonesian Rupiah','Rp'],'VND'=>['Vietnamese Dong','₫'],'SAR'=>['Saudi Riyal','SR'],'AED'=>['UAE Dirham','AED'],'ZAR'=>['South African Rand','R'],'BRL'=>['Brazilian Real','R$'],'MXN'=>['Mexican Peso','$'],'NZD'=>['New Zealand Dollar','NZ$'],'CHF'=>['Swiss Franc','CHF'],'NOK'=>['Norwegian Krone','kr'],'SEK'=>['Swedish Krona','kr'],'DKK'=>['Danish Krone','kr'],'PKR'=>['Pakistani Rupee','Rs'],'BDT'=>['Bangladeshi Taka','Tk'],'EGP'=>['Egyptian Pound','E£'],'NGN'=>['Nigerian Naira','₦'],'KES'=>['Kenyan Shilling','KSh'],'CLP'=>['Chilean Peso','$'],'COP'=>['Colombian Peso','$'],'PEN'=>['Peruvian Sol','S/'],'ARS'=>['Argentine Peso','$']];
-        @endphp
-        <div class="form-grid">
-            <div class="field-group">
-                <label>Currency</label>
-                <select name="currency_code" onchange="updateSymbol(this.value)">
-                    @foreach($currencies as $code => [$name, $symbol])
-                        <option value="{{ $code }}" data-symbol="{{ $symbol }}" {{ ($appSettings->currency_code ?? 'PHP') === $code ? 'selected' : '' }}>
-                            {{ $code }} - {{ $name }} ({{ $symbol }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="field-group">
-                <label>Currency Symbol</label>
-                <input type="text" name="currency_symbol" id="currency_symbol" value="{{ old('currency_symbol', $appSettings->currency_symbol ?? '₱') }}" placeholder="₱" style="max-width:100px;">
-                <div style="font-size:11px;color:#aaa;margin-top:4px;">Auto-filled when you pick a currency.</div>
-            </div>
-            <div class="field-group">
-                <label>Default Tax Rate (%)</label>
-                <input type="number" name="default_tax_rate" step="0.01" min="0" max="100" value="{{ old('default_tax_rate', $appSettings->default_tax_rate ?? 0) }}" style="max-width:120px;">
-            </div>
-            <div class="field-group" style="display:flex;align-items:center;gap:10px;padding-top:1.5rem;">
-                <input type="checkbox" id="show_tax" name="show_tax_on_receipt" value="1" {{ $appSettings->show_tax_on_receipt ? 'checked' : '' }}>
-                <label for="show_tax" style="margin:0;font-weight:normal;">Show tax on receipts</label>
-            </div>
-            <div class="field-group" style="grid-column:span 2;">
-                <label>Receipt Footer Note <span class="optional-tag">optional</span></label>
-                <input type="text" name="receipt_footer_note" value="{{ old('receipt_footer_note', $appSettings->receipt_footer_note) }}" placeholder="e.g. Thank you for trusting us with your dental health.">
-            </div>
-        </div>
-        <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
-            <button type="submit" class="btn-primary">Save Billing Settings</button>
-        </div>
-        <script>
-        const currencySymbols = {
-            @foreach($currencies as $code => [$name, $symbol])
-            "{{ $code }}": "{{ $symbol }}",
-            @endforeach
-        };
-        function updateSymbol(code) {
-            document.getElementById('currency_symbol').value = currencySymbols[code] || '';
-        }
-        </script>
-    </form>
-
-    <hr style="border:none;border-top:1px solid #eef2ff;margin:1.5rem 0;">
-
-    {{-- SECTION 4: DATE & APPEARANCE --}}
-    <form method="POST" action="{{ route('settings.clinic') }}" class="clinic-form">
-        @csrf
-        <input type="hidden" name="section" value="appearance">
-        <h3 class="form-section-title">Date, Time & Appearance</h3>
-        <div class="form-grid">
-            <div class="field-group">
-                <label>Date Format</label>
-                <select name="date_format">
-                    @foreach(['M d, Y' => 'Jul 13, 2026', 'F d, Y' => 'July 13, 2026', 'd/m/Y' => '13/07/2026', 'm/d/Y' => '07/13/2026', 'Y-m-d' => '2026-07-13'] as $val => $label)
-                        <option value="{{ $val }}" {{ ($appSettings->date_format ?? 'M d, Y') === $val ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="field-group">
-                <label>Timezone</label>
-                <select name="timezone">
-                    @foreach(['Asia/Manila' => 'Philippines (GMT+8)', 'America/New_York' => 'US Eastern (GMT-5)', 'America/Los_Angeles' => 'US Pacific (GMT-8)', 'Europe/London' => 'UK (GMT)', 'Australia/Sydney' => 'Australia Eastern (GMT+10)'] as $val => $label)
-                        <option value="{{ $val }}" {{ ($appSettings->timezone ?? 'Asia/Manila') === $val ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-
-        <div style="margin-top:1.5rem;">
-            <label style="display:block;margin-bottom:10px;">Theme Presets</label>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;" id="theme-presets">
-                @php
-                // [label, primary, secondary, bg, surface]
-                $presets = [
-                    'teal-coral'  => ['Teal & Coral', '#2A9D8F', '#FF8966', '#F7F9F9', '#FFFFFF'],
-                    'ocean-blue'  => ['Ocean Blue',   '#1e4a8a', '#f97316', '#F5F8FC', '#FFFFFF'],
-                    'royal-purple'=> ['Royal Purple', '#6d28d9', '#ec4899', '#FAF8FD', '#FFFFFF'],
-                    'fresh-green' => ['Fresh Green',  '#15803d', '#84cc16', '#F6FAF7', '#FFFFFF'],
-                    'navy-gold'   => ['Navy & Gold',  '#1e293b', '#d4af37', '#F4F5F7', '#FFFFFF'],
-                    'rose-slate'  => ['Rose Slate',   '#be123c', '#64748b', '#FAF7F8', '#FFFFFF'],
-                    'midnight'    => ['Midnight',     '#38bdf8', '#f472b6', '#0f172a', '#1e293b'],
-                    'mono'        => ['Monochrome',   '#333333', '#888888', '#F7F7F7', '#FFFFFF'],
-                ];
-                @endphp
-                @foreach($presets as $key => [$label, $p, $s, $bg, $surface])
-                <div onclick="applyPreset('{{ $key }}', '{{ $p }}', '{{ $s }}', '{{ $bg }}', '{{ $surface }}')"
-                     style="cursor:pointer;border:2px solid {{ ($appSettings->theme_preset ?? 'teal-coral') === $key ? '#333' : '#e5e5e5' }};border-radius:10px;padding:8px 10px;text-align:center;width:90px;background:{{ $bg }};"
-                     data-preset="{{ $key }}">
-                    <div style="display:flex;height:24px;border-radius:5px;overflow:hidden;margin-bottom:6px;border:1px solid rgba(0,0,0,0.06);">
-                        <div style="flex:1;background:{{ $p }};"></div>
-                        <div style="flex:1;background:{{ $s }};"></div>
-                    </div>
-                    <div style="font-size:10px;color:#666;">{{ $label }}</div>
-                </div>
-                @endforeach
-            </div>
-            <div style="font-size:11px;color:#aaa;margin-top:8px;">Presets set matching background, surface, and accent colors together for a balanced look. Pick one, then fine-tune below if you like.</div>
-        </div>
-
-        <div class="form-grid" style="margin-top:1.5rem;">
-            <div class="field-group">
-                <label>Primary Color <span class="optional-tag">buttons, links, active states</span></label>
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <input type="color" id="primary_color" name="primary_color"
-                           value="{{ $appSettings->primary_color ?? '#2A9D8F' }}"
-                           style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
-                           oninput="document.getElementById('primary_text').value=this.value; clearPresetSelection(); updatePreview();">
-                    <input type="text" id="primary_text" value="{{ $appSettings->primary_color ?? '#2A9D8F' }}"
-                           style="max-width:110px;font-family:monospace;"
-                           oninput="document.getElementById('primary_color').value=this.value; clearPresetSelection(); updatePreview();">
-                </div>
-            </div>
-            <div class="field-group">
-                <label>Secondary Color <span class="optional-tag">accents, submit buttons</span></label>
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <input type="color" id="secondary_color" name="secondary_color"
-                           value="{{ $appSettings->secondary_color ?? '#FF8966' }}"
-                           style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
-                           oninput="document.getElementById('secondary_text').value=this.value; clearPresetSelection(); updatePreview();">
-                    <input type="text" id="secondary_text" value="{{ $appSettings->secondary_color ?? '#FF8966' }}"
-                           style="max-width:110px;font-family:monospace;"
-                           oninput="document.getElementById('secondary_color').value=this.value; clearPresetSelection(); updatePreview();">
-                </div>
-            </div>
-            <div class="field-group">
-                <label>Background Color <span class="optional-tag">page background</span></label>
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <input type="color" id="bg_color" name="bg_color"
-                           value="{{ $appSettings->bg_color ?? '#F7F9F9' }}"
-                           style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
-                           oninput="document.getElementById('bg_text').value=this.value; clearPresetSelection(); updatePreview();">
-                    <input type="text" id="bg_text" value="{{ $appSettings->bg_color ?? '#F7F9F9' }}"
-                           style="max-width:110px;font-family:monospace;"
-                           oninput="document.getElementById('bg_color').value=this.value; clearPresetSelection(); updatePreview();">
-                </div>
-            </div>
-            <div class="field-group">
-                <label>Surface Color <span class="optional-tag">cards & panels</span></label>
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <input type="color" id="surface_color" name="surface_color"
-                           value="{{ $appSettings->surface_color ?? '#FFFFFF' }}"
-                           style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
-                           oninput="document.getElementById('surface_text').value=this.value; clearPresetSelection(); updatePreview();">
-                    <input type="text" id="surface_text" value="{{ $appSettings->surface_color ?? '#FFFFFF' }}"
-                           style="max-width:110px;font-family:monospace;"
-                           oninput="document.getElementById('surface_color').value=this.value; clearPresetSelection(); updatePreview();">
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-top:1.25rem;">
-            <label style="display:block;margin-bottom:8px;">Live Preview</label>
-            <div id="theme-preview" style="border-radius:10px;padding:20px;transition:background 0.2s;">
-                <div id="preview-card" style="border-radius:8px;padding:16px;transition:background 0.2s;">
-                    <div id="preview-heading" style="font-weight:700;font-size:15px;margin-bottom:4px;transition:color 0.2s;">Sample Card Heading</div>
-                    <div id="preview-muted" style="font-size:12px;margin-bottom:12px;transition:color 0.2s;">Muted supporting text sits here.</div>
-                    <button type="button" id="preview-btn-primary" style="border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;margin-right:8px;transition:background 0.2s,color 0.2s;">Primary Button</button>
-                    <button type="button" id="preview-btn-secondary" style="border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;transition:background 0.2s,color 0.2s;">Secondary Button</button>
-                </div>
-            </div>
-            <div style="font-size:11px;color:#aaa;margin-top:6px;">Text colors adjust automatically for readability against whatever background you pick.</div>
-        </div>
-
-        <input type="hidden" name="theme_preset" id="theme_preset_input" value="{{ $appSettings->theme_preset ?? 'teal-coral' }}">
-
-        <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:1rem;">
-            <button type="submit" class="btn-primary">Save Appearance</button>
-        </div>
-    </form>
-
-    <script>
-        function hexToRgb(hex) {
-            hex = hex.replace('#', '');
-            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-            const num = parseInt(hex, 16);
-            return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
-        }
-        function luminance([r, g, b]) {
-            const a = [r, g, b].map(v => {
-                v /= 255;
-                return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-            });
-            return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
-        }
-        function readableOn(hex) {
-            return luminance(hexToRgb(hex)) > 0.5 ? '#12302E' : '#FFFFFF';
-        }
-
-        function applyPreset(key, primary, secondary, bg, surface) {
-            document.getElementById('primary_color').value = primary;
-            document.getElementById('primary_text').value = primary;
-            document.getElementById('secondary_color').value = secondary;
-            document.getElementById('secondary_text').value = secondary;
-            document.getElementById('bg_color').value = bg;
-            document.getElementById('bg_text').value = bg;
-            document.getElementById('surface_color').value = surface;
-            document.getElementById('surface_text').value = surface;
-            document.getElementById('theme_preset_input').value = key;
-
-            document.querySelectorAll('#theme-presets > div').forEach(el => {
-                el.style.borderColor = el.dataset.preset === key ? '#333' : '#e5e5e5';
-            });
-            updatePreview();
-        }
-        function clearPresetSelection() {
-            document.getElementById('theme_preset_input').value = 'custom';
-            document.querySelectorAll('#theme-presets > div').forEach(el => {
-                el.style.borderColor = '#e5e5e5';
-            });
-        }
-
-        function updatePreview() {
-            const primary   = document.getElementById('primary_color').value;
-            const secondary = document.getElementById('secondary_color').value;
-            const bg        = document.getElementById('bg_color').value;
-            const surface   = document.getElementById('surface_color').value;
-
-            const ink   = readableOn(bg);
-            const muted = luminance(hexToRgb(bg)) > 0.5 ? '#6B7280' : '#A0AAB4';
-
-            document.getElementById('theme-preview').style.background = bg;
-            document.getElementById('preview-card').style.background = surface;
-            document.getElementById('preview-heading').style.color = ink;
-            document.getElementById('preview-muted').style.color = muted;
-
-            const btnP = document.getElementById('preview-btn-primary');
-            btnP.style.background = primary;
-            btnP.style.color = readableOn(primary);
-
-            const btnS = document.getElementById('preview-btn-secondary');
-            btnS.style.background = secondary;
-            btnS.style.color = readableOn(secondary);
-        }
-
-        document.addEventListener('DOMContentLoaded', updatePreview);
-    </script>
-
-</div>
-
 <!-- ===== Appearance ===== -->
         <div x-show="tab === 'appearance'" class="settings-panel">
             <h3 class="form-section-title">Dark Mode</h3>
@@ -587,53 +262,49 @@
             </div>
 
 
-            <!-- ===== Clinic Settings ===== -->
+            <!-- ===== Clinic Settings Tab ===== -->
             <div x-show="tab === 'clinic'" class="settings-panel">
-
-                @if (session('success'))
-                    <div class="status-message" style="margin-bottom:1rem;">{{ session('success') }}</div>
-                @endif
-
-                {{-- SECTION 1: Identity --}}
+            
+                {{-- SECTION 1: CLINIC IDENTITY --}}
                 <form method="POST" action="{{ route('settings.clinic') }}" enctype="multipart/form-data" class="clinic-form">
                     @csrf
                     <input type="hidden" name="section" value="identity">
                     <h3 class="form-section-title">Clinic Identity</h3>
-
                     <div class="field-group" style="margin-bottom:1.25rem;">
-                        <label>Logo</label>
+                        <label>Clinic Logo</label>
                         <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
                             @if($appSettings->logo)
-                                <img src="{{ asset('storage/' . $appSettings->logo) }}" style="height:56px;border-radius:8px;border:1px solid #dce6f7;padding:4px;background:#fff;" alt="Logo">
+                                <img src="{{ asset('storage/' . $appSettings->logo) }}" style="height:60px;border-radius:8px;border:1px solid #dce6f7;padding:4px;background:#fff;">
                                 <a href="{{ route('settings.clinic.remove-logo') }}" onclick="return confirm('Remove logo?')" style="color:#D96A48;font-size:13px;text-decoration:none;">Remove</a>
                             @else
-                                <div style="height:56px;width:90px;border:2px dashed #dce6f7;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:11px;">No Logo</div>
+                                <div style="height:60px;width:60px;border-radius:10px;background:#dce6f7;display:flex;align-items:center;justify-content:center;font-size:26px;color:#1e4a8a;font-weight:bold;">
+                                    {{ strtoupper(substr($appSettings->clinic_name ?? 'D', 0, 1)) }}
+                                </div>
                             @endif
                             <div>
                                 <input type="file" name="logo" accept="image/*" style="font-size:13px;">
-                                <div style="font-size:11px;color:#aaa;margin-top:3px;">PNG, JPG, SVG. Max 2MB.</div>
+                                <div style="font-size:11px;color:#aaa;margin-top:4px;">PNG, JPG, SVG. Max 2MB.</div>
                             </div>
                         </div>
                     </div>
-
                     <div class="form-grid">
                         <div class="field-group">
                             <label>Clinic Name</label>
-                            <input type="text" name="clinic_name" value="{{ $appSettings->clinic_name ?? 'Clear Smile Dental Clinic' }}" placeholder="Clinic name">
+                            <input type="text" name="clinic_name" value="{{ old('clinic_name', $appSettings->clinic_name) }}" placeholder="e.g. Clear Smile Dental Clinic">
                         </div>
                         <div class="field-group">
                             <label>Tagline <span class="optional-tag">optional</span></label>
-                            <input type="text" name="tagline" value="{{ $appSettings->tagline }}" placeholder="e.g. Your Smile, Our Priority">
+                            <input type="text" name="tagline" value="{{ old('tagline', $appSettings->tagline) }}" placeholder="e.g. Your Smile, Our Priority">
                         </div>
                     </div>
                     <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
                         <button type="submit" class="btn-primary">Save Identity</button>
                     </div>
                 </form>
-
+            
                 <hr style="border:none;border-top:1px solid #eef2ff;margin:1.5rem 0;">
-
-                {{-- SECTION 2: Contact --}}
+            
+                {{-- SECTION 2: CONTACT INFO --}}
                 <form method="POST" action="{{ route('settings.clinic') }}" class="clinic-form">
                     @csrf
                     <input type="hidden" name="section" value="contact">
@@ -641,157 +312,279 @@
                     <div class="form-grid">
                         <div class="field-group" style="grid-column:span 2;">
                             <label>Address</label>
-                            <input type="text" name="address" value="{{ $appSettings->address }}" placeholder="123 Main St, City">
+                            <input type="text" name="address" value="{{ old('address', $appSettings->address) }}" placeholder="e.g. 123 Main St, Baguio City">
                         </div>
                         <div class="field-group">
                             <label>Phone</label>
-                            <input type="text" name="phone" value="{{ $appSettings->phone }}" placeholder="+63 912 345 6789">
+                            <input type="text" name="phone" value="{{ old('phone', $appSettings->phone) }}" placeholder="+63 912 345 6789">
                         </div>
                         <div class="field-group">
                             <label>Email</label>
-                            <input type="email" name="email" value="{{ $appSettings->email }}" placeholder="clinic@email.com">
+                            <input type="email" name="email" value="{{ old('email', $appSettings->email) }}" placeholder="clinic@email.com">
                         </div>
                         <div class="field-group">
                             <label>Website <span class="optional-tag">optional</span></label>
-                            <input type="text" name="website" value="{{ $appSettings->website }}" placeholder="https://yourclinic.com">
+                            <input type="text" name="website" value="{{ old('website', $appSettings->website) }}" placeholder="https://www.yourclinic.com">
                         </div>
                         <div class="field-group">
                             <label>TIN <span class="optional-tag">optional</span></label>
-                            <input type="text" name="tin" value="{{ $appSettings->tin }}" placeholder="000-000-000-000">
+                            <input type="text" name="tin" value="{{ old('tin', $appSettings->tin) }}" placeholder="000-000-000-000">
                         </div>
                     </div>
                     <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
-                        <button type="submit" class="btn-primary">Save Contact</button>
+                        <button type="submit" class="btn-primary">Save Contact Info</button>
                     </div>
                 </form>
-
+            
                 <hr style="border:none;border-top:1px solid #eef2ff;margin:1.5rem 0;">
-
-                {{-- SECTION 3: Currency & Billing --}}
+            
+                {{-- SECTION 3: CURRENCY & BILLING --}}
                 <form method="POST" action="{{ route('settings.clinic') }}" class="clinic-form">
                     @csrf
                     <input type="hidden" name="section" value="billing">
                     <h3 class="form-section-title">Currency & Billing</h3>
+                    @php
+                    $currencies = ['PHP'=>['Philippine Peso','₱'],'USD'=>['US Dollar','$'],'EUR'=>['Euro','€'],'GBP'=>['British Pound','£'],'JPY'=>['Japanese Yen','¥'],'AUD'=>['Australian Dollar','A$'],'CAD'=>['Canadian Dollar','C$'],'SGD'=>['Singapore Dollar','S$'],'HKD'=>['Hong Kong Dollar','HK$'],'KRW'=>['South Korean Won','₩'],'CNY'=>['Chinese Yuan','¥'],'INR'=>['Indian Rupee','₹'],'MYR'=>['Malaysian Ringgit','RM'],'THB'=>['Thai Baht','฿'],'IDR'=>['Indonesian Rupiah','Rp'],'VND'=>['Vietnamese Dong','₫'],'SAR'=>['Saudi Riyal','SR'],'AED'=>['UAE Dirham','AED'],'ZAR'=>['South African Rand','R'],'BRL'=>['Brazilian Real','R$'],'MXN'=>['Mexican Peso','$'],'NZD'=>['New Zealand Dollar','NZ$'],'CHF'=>['Swiss Franc','CHF'],'NOK'=>['Norwegian Krone','kr'],'SEK'=>['Swedish Krona','kr'],'DKK'=>['Danish Krone','kr'],'PKR'=>['Pakistani Rupee','Rs'],'BDT'=>['Bangladeshi Taka','Tk'],'EGP'=>['Egyptian Pound','E£'],'NGN'=>['Nigerian Naira','₦'],'KES'=>['Kenyan Shilling','KSh'],'CLP'=>['Chilean Peso','$'],'COP'=>['Colombian Peso','$'],'PEN'=>['Peruvian Sol','S/'],'ARS'=>['Argentine Peso','$']];
+                    @endphp
                     <div class="form-grid">
                         <div class="field-group">
                             <label>Currency</label>
                             <select name="currency_code" onchange="updateSymbol(this.value)">
-                                @php
-                                $currencies = [
-                                    'PHP' => ['symbol' => '₱', 'name' => 'Philippine Peso'],
-                                    'USD' => ['symbol' => '$', 'name' => 'US Dollar'],
-                                    'EUR' => ['symbol' => '€', 'name' => 'Euro'],
-                                    'GBP' => ['symbol' => '£', 'name' => 'British Pound'],
-                                    'AUD' => ['symbol' => 'A$', 'name' => 'Australian Dollar'],
-                                    'CAD' => ['symbol' => 'C$', 'name' => 'Canadian Dollar'],
-                                    'SGD' => ['symbol' => 'S$', 'name' => 'Singapore Dollar'],
-                                    'JPY' => ['symbol' => '¥', 'name' => 'Japanese Yen'],
-                                    'CNY' => ['symbol' => '¥', 'name' => 'Chinese Yuan'],
-                                    'KRW' => ['symbol' => '₩', 'name' => 'South Korean Won'],
-                                    'INR' => ['symbol' => '₹', 'name' => 'Indian Rupee'],
-                                    'MYR' => ['symbol' => 'RM', 'name' => 'Malaysian Ringgit'],
-                                    'IDR' => ['symbol' => 'Rp', 'name' => 'Indonesian Rupiah'],
-                                    'THB' => ['symbol' => '฿', 'name' => 'Thai Baht'],
-                                    'VND' => ['symbol' => '₫', 'name' => 'Vietnamese Dong'],
-                                    'HKD' => ['symbol' => 'HK$', 'name' => 'Hong Kong Dollar'],
-                                    'TWD' => ['symbol' => 'NT$', 'name' => 'Taiwan Dollar'],
-                                    'SAR' => ['symbol' => '﷼', 'name' => 'Saudi Riyal'],
-                                    'AED' => ['symbol' => 'د.إ', 'name' => 'UAE Dirham'],
-                                    'NZD' => ['symbol' => 'NZ$', 'name' => 'New Zealand Dollar'],
-                                    'CHF' => ['symbol' => 'Fr', 'name' => 'Swiss Franc'],
-                                    'ZAR' => ['symbol' => 'R', 'name' => 'South African Rand'],
-                                    'BRL' => ['symbol' => 'R$', 'name' => 'Brazilian Real'],
-                                    'MXN' => ['symbol' => 'MX$', 'name' => 'Mexican Peso'],
-                                ];
-                                @endphp
-                                @foreach($currencies as $code => $info)
-                                    <option value="{{ $code }}"
-                                        data-symbol="{{ $info['symbol'] }}"
-                                        {{ ($appSettings->currency_code ?? 'PHP') === $code ? 'selected' : '' }}>
-                                        {{ $code }} &ndash; {{ $info['name'] }} ({{ $info['symbol'] }})
+                                @foreach($currencies as $code => [$name, $symbol])
+                                    <option value="{{ $code }}" data-symbol="{{ $symbol }}" {{ ($appSettings->currency_code ?? 'PHP') === $code ? 'selected' : '' }}>
+                                        {{ $code }} - {{ $name }} ({{ $symbol }})
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="field-group">
                             <label>Currency Symbol</label>
-                            <input type="text" name="currency_symbol" id="currency_symbol_input"
-                                   value="{{ $appSettings->currency_symbol ?? '₱' }}"
-                                   placeholder="₱" style="max-width:100px;">
-                            <div style="font-size:11px;color:#aaa;margin-top:3px;">Auto-fills from currency selection. Override if needed.</div>
+                            <input type="text" name="currency_symbol" id="currency_symbol" value="{{ old('currency_symbol', $appSettings->currency_symbol ?? '₱') }}" placeholder="₱" style="max-width:100px;">
+                            <div style="font-size:11px;color:#aaa;margin-top:4px;">Auto-filled when you pick a currency.</div>
                         </div>
                         <div class="field-group">
-                            <label>Tax Rate (%)</label>
-                            <input type="number" name="default_tax_rate" step="0.01" min="0" max="100"
-                                   value="{{ $appSettings->default_tax_rate ?? 0 }}" style="max-width:120px;">
+                            <label>Default Tax Rate (%)</label>
+                            <input type="number" name="default_tax_rate" step="0.01" min="0" max="100" value="{{ old('default_tax_rate', $appSettings->default_tax_rate ?? 0) }}" style="max-width:120px;">
                         </div>
                         <div class="field-group" style="display:flex;align-items:center;gap:10px;padding-top:1.5rem;">
-                            <input type="checkbox" id="show_tax" name="show_tax_on_receipt" value="1"
-                                   {{ ($appSettings->show_tax_on_receipt ?? false) ? 'checked' : '' }}>
+                            <input type="checkbox" id="show_tax" name="show_tax_on_receipt" value="1" {{ $appSettings->show_tax_on_receipt ? 'checked' : '' }}>
                             <label for="show_tax" style="margin:0;font-weight:normal;">Show tax on receipts</label>
                         </div>
-                    </div>
-
-                    <div class="field-group" style="margin-top:1rem;">
-                        <label>Accepted Payment Methods</label>
-                        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;">
-                            @foreach(['Cash', 'GCash', 'Maya', 'Bank Transfer', 'Credit Card', 'Cheque', 'PayMongo'] as $method)
-                                <label style="display:flex;align-items:center;gap:5px;font-weight:normal;font-size:13px;cursor:pointer;">
-                                    <input type="checkbox" name="payment_methods[]" value="{{ $method }}"
-                                           {{ in_array($method, $appSettings->payment_methods ?? ['Cash']) ? 'checked' : '' }}>
-                                    {{ $method }}
-                                </label>
-                            @endforeach
+                        <div class="field-group" style="grid-column:span 2;">
+                            <label>Receipt Footer Note <span class="optional-tag">optional</span></label>
+                            <input type="text" name="receipt_footer_note" value="{{ old('receipt_footer_note', $appSettings->receipt_footer_note) }}" placeholder="e.g. Thank you for trusting us with your dental health.">
                         </div>
-                        <div style="font-size:11px;color:#aaa;margin-top:4px;">Online payments (GCash, Maya, etc.) will prompt for a reference number at checkout.</div>
                     </div>
-
-                    <div class="field-group" style="margin-top:1rem;">
-                        <label>Receipt Footer Note <span class="optional-tag">optional</span></label>
-                        <input type="text" name="receipt_footer_note"
-                               value="{{ $appSettings->receipt_footer_note }}"
-                               placeholder="e.g. Thank you for trusting us with your dental health.">
-                    </div>
-
                     <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
-                        <button type="submit" class="btn-primary">Save Billing</button>
+                        <button type="submit" class="btn-primary">Save Billing Settings</button>
                     </div>
-
                     <script>
-                        const currencySymbols = @json(array_combine(array_keys($currencies), array_column($currencies, 'symbol')));
-                        function updateSymbol(code) {
-                            document.getElementById('currency_symbol_input').value = currencySymbols[code] || '';
-                        }
+                    const currencySymbols = {
+                        @foreach($currencies as $code => [$name, $symbol])
+                        "{{ $code }}": "{{ $symbol }}",
+                        @endforeach
+                    };
+                    function updateSymbol(code) {
+                        document.getElementById('currency_symbol').value = currencySymbols[code] || '';
+                    }
                     </script>
                 </form>
-
+            
                 <hr style="border:none;border-top:1px solid #eef2ff;margin:1.5rem 0;">
-
-                {{-- SECTION 4: Appearance --}}
+            
+                {{-- SECTION 4: DATE & APPEARANCE --}}
                 <form method="POST" action="{{ route('settings.clinic') }}" class="clinic-form">
                     @csrf
                     <input type="hidden" name="section" value="appearance">
-                    <h3 class="form-section-title">Appearance</h3>
+                    <h3 class="form-section-title">Date, Time & Appearance</h3>
                     <div class="form-grid">
                         <div class="field-group">
-                            <label>Primary Color</label>
+                            <label>Date Format</label>
+                            <select name="date_format">
+                                @foreach(['M d, Y' => 'Jul 13, 2026', 'F d, Y' => 'July 13, 2026', 'd/m/Y' => '13/07/2026', 'm/d/Y' => '07/13/2026', 'Y-m-d' => '2026-07-13'] as $val => $label)
+                                    <option value="{{ $val }}" {{ ($appSettings->date_format ?? 'M d, Y') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label>Timezone</label>
+                            <select name="timezone">
+                                @foreach(['Asia/Manila' => 'Philippines (GMT+8)', 'America/New_York' => 'US Eastern (GMT-5)', 'America/Los_Angeles' => 'US Pacific (GMT-8)', 'Europe/London' => 'UK (GMT)', 'Australia/Sydney' => 'Australia Eastern (GMT+10)'] as $val => $label)
+                                    <option value="{{ $val }}" {{ ($appSettings->timezone ?? 'Asia/Manila') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+            
+                    <div style="margin-top:1.5rem;">
+                        <label style="display:block;margin-bottom:10px;">Theme Presets</label>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;" id="theme-presets">
+                            @php
+                            // [label, primary, secondary, bg, surface]
+                            $presets = [
+                                'teal-coral'  => ['Teal & Coral', '#2A9D8F', '#FF8966', '#F7F9F9', '#FFFFFF'],
+                                'ocean-blue'  => ['Ocean Blue',   '#1e4a8a', '#f97316', '#F5F8FC', '#FFFFFF'],
+                                'royal-purple'=> ['Royal Purple', '#6d28d9', '#ec4899', '#FAF8FD', '#FFFFFF'],
+                                'fresh-green' => ['Fresh Green',  '#15803d', '#84cc16', '#F6FAF7', '#FFFFFF'],
+                                'navy-gold'   => ['Navy & Gold',  '#1e293b', '#d4af37', '#F4F5F7', '#FFFFFF'],
+                                'rose-slate'  => ['Rose Slate',   '#be123c', '#64748b', '#FAF7F8', '#FFFFFF'],
+                                'midnight'    => ['Midnight',     '#38bdf8', '#f472b6', '#0f172a', '#1e293b'],
+                                'mono'        => ['Monochrome',   '#333333', '#888888', '#F7F7F7', '#FFFFFF'],
+                            ];
+                            @endphp
+                            @foreach($presets as $key => [$label, $p, $s, $bg, $surface])
+                            <div onclick="applyPreset('{{ $key }}', '{{ $p }}', '{{ $s }}', '{{ $bg }}', '{{ $surface }}')"
+                                 style="cursor:pointer;border:2px solid {{ ($appSettings->theme_preset ?? 'teal-coral') === $key ? '#333' : '#e5e5e5' }};border-radius:10px;padding:8px 10px;text-align:center;width:90px;background:{{ $bg }};"
+                                 data-preset="{{ $key }}">
+                                <div style="display:flex;height:24px;border-radius:5px;overflow:hidden;margin-bottom:6px;border:1px solid rgba(0,0,0,0.06);">
+                                    <div style="flex:1;background:{{ $p }};"></div>
+                                    <div style="flex:1;background:{{ $s }};"></div>
+                                </div>
+                                <div style="font-size:10px;color:#666;">{{ $label }}</div>
+                            </div>
+                            @endforeach
+                        </div>
+                        <div style="font-size:11px;color:#aaa;margin-top:8px;">Presets set matching background, surface, and accent colors together for a balanced look. Pick one, then fine-tune below if you like.</div>
+                    </div>
+            
+                    <div class="form-grid" style="margin-top:1.5rem;">
+                        <div class="field-group">
+                            <label>Primary Color <span class="optional-tag">buttons, links, active states</span></label>
                             <div style="display:flex;align-items:center;gap:10px;">
-                                <input type="color" name="primary_color" id="pc"
-                                       value="{{ $appSettings->primary_color ?? '#1e4a8a' }}"
-                                       style="width:48px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
-                                       oninput="document.getElementById('pct').value=this.value">
-                                <input type="text" id="pct"
-                                       value="{{ $appSettings->primary_color ?? '#1e4a8a' }}"
+                                <input type="color" id="primary_color" name="primary_color"
+                                       value="{{ $appSettings->primary_color ?? '#2A9D8F' }}"
+                                       style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
+                                       oninput="document.getElementById('primary_text').value=this.value; clearPresetSelection(); updatePreview();">
+                                <input type="text" id="primary_text" value="{{ $appSettings->primary_color ?? '#2A9D8F' }}"
                                        style="max-width:110px;font-family:monospace;"
-                                       oninput="document.getElementById('pc').value=this.value">
+                                       oninput="document.getElementById('primary_color').value=this.value; clearPresetSelection(); updatePreview();">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label>Secondary Color <span class="optional-tag">accents, submit buttons</span></label>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <input type="color" id="secondary_color" name="secondary_color"
+                                       value="{{ $appSettings->secondary_color ?? '#FF8966' }}"
+                                       style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
+                                       oninput="document.getElementById('secondary_text').value=this.value; clearPresetSelection(); updatePreview();">
+                                <input type="text" id="secondary_text" value="{{ $appSettings->secondary_color ?? '#FF8966' }}"
+                                       style="max-width:110px;font-family:monospace;"
+                                       oninput="document.getElementById('secondary_color').value=this.value; clearPresetSelection(); updatePreview();">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label>Background Color <span class="optional-tag">page background</span></label>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <input type="color" id="bg_color" name="bg_color"
+                                       value="{{ $appSettings->bg_color ?? '#F7F9F9' }}"
+                                       style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
+                                       oninput="document.getElementById('bg_text').value=this.value; clearPresetSelection(); updatePreview();">
+                                <input type="text" id="bg_text" value="{{ $appSettings->bg_color ?? '#F7F9F9' }}"
+                                       style="max-width:110px;font-family:monospace;"
+                                       oninput="document.getElementById('bg_color').value=this.value; clearPresetSelection(); updatePreview();">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label>Surface Color <span class="optional-tag">cards & panels</span></label>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <input type="color" id="surface_color" name="surface_color"
+                                       value="{{ $appSettings->surface_color ?? '#FFFFFF' }}"
+                                       style="width:50px;height:36px;border:none;padding:0;cursor:pointer;border-radius:5px;"
+                                       oninput="document.getElementById('surface_text').value=this.value; clearPresetSelection(); updatePreview();">
+                                <input type="text" id="surface_text" value="{{ $appSettings->surface_color ?? '#FFFFFF' }}"
+                                       style="max-width:110px;font-family:monospace;"
+                                       oninput="document.getElementById('surface_color').value=this.value; clearPresetSelection(); updatePreview();">
                             </div>
                         </div>
                     </div>
-                    <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:0.5rem;">
+            
+                    <div style="margin-top:1.25rem;">
+                        <label style="display:block;margin-bottom:8px;">Live Preview</label>
+                        <div id="theme-preview" style="border-radius:10px;padding:20px;transition:background 0.2s;">
+                            <div id="preview-card" style="border-radius:8px;padding:16px;transition:background 0.2s;">
+                                <div id="preview-heading" style="font-weight:700;font-size:15px;margin-bottom:4px;transition:color 0.2s;">Sample Card Heading</div>
+                                <div id="preview-muted" style="font-size:12px;margin-bottom:12px;transition:color 0.2s;">Muted supporting text sits here.</div>
+                                <button type="button" id="preview-btn-primary" style="border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;margin-right:8px;transition:background 0.2s,color 0.2s;">Primary Button</button>
+                                <button type="button" id="preview-btn-secondary" style="border:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;transition:background 0.2s,color 0.2s;">Secondary Button</button>
+                            </div>
+                        </div>
+                        <div style="font-size:11px;color:#aaa;margin-top:6px;">Text colors adjust automatically for readability against whatever background you pick.</div>
+                    </div>
+            
+                    <input type="hidden" name="theme_preset" id="theme_preset_input" value="{{ $appSettings->theme_preset ?? 'teal-coral' }}">
+            
+                    <div class="form-footer" style="justify-content:flex-start;border-top:none;padding-top:1rem;">
                         <button type="submit" class="btn-primary">Save Appearance</button>
                     </div>
                 </form>
-
+            
+                <script>
+                    function hexToRgb(hex) {
+                        hex = hex.replace('#', '');
+                        if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+                        const num = parseInt(hex, 16);
+                        return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+                    }
+                    function luminance([r, g, b]) {
+                        const a = [r, g, b].map(v => {
+                            v /= 255;
+                            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+                        });
+                        return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+                    }
+                    function readableOn(hex) {
+                        return luminance(hexToRgb(hex)) > 0.5 ? '#12302E' : '#FFFFFF';
+                    }
+            
+                    function applyPreset(key, primary, secondary, bg, surface) {
+                        document.getElementById('primary_color').value = primary;
+                        document.getElementById('primary_text').value = primary;
+                        document.getElementById('secondary_color').value = secondary;
+                        document.getElementById('secondary_text').value = secondary;
+                        document.getElementById('bg_color').value = bg;
+                        document.getElementById('bg_text').value = bg;
+                        document.getElementById('surface_color').value = surface;
+                        document.getElementById('surface_text').value = surface;
+                        document.getElementById('theme_preset_input').value = key;
+            
+                        document.querySelectorAll('#theme-presets > div').forEach(el => {
+                            el.style.borderColor = el.dataset.preset === key ? '#333' : '#e5e5e5';
+                        });
+                        updatePreview();
+                    }
+                    function clearPresetSelection() {
+                        document.getElementById('theme_preset_input').value = 'custom';
+                        document.querySelectorAll('#theme-presets > div').forEach(el => {
+                            el.style.borderColor = '#e5e5e5';
+                        });
+                    }
+            
+                    function updatePreview() {
+                        const primary   = document.getElementById('primary_color').value;
+                        const secondary = document.getElementById('secondary_color').value;
+                        const bg        = document.getElementById('bg_color').value;
+                        const surface   = document.getElementById('surface_color').value;
+            
+                        const ink   = readableOn(bg);
+                        const muted = luminance(hexToRgb(bg)) > 0.5 ? '#6B7280' : '#A0AAB4';
+            
+                        document.getElementById('theme-preview').style.background = bg;
+                        document.getElementById('preview-card').style.background = surface;
+                        document.getElementById('preview-heading').style.color = ink;
+                        document.getElementById('preview-muted').style.color = muted;
+            
+                        const btnP = document.getElementById('preview-btn-primary');
+                        btnP.style.background = primary;
+                        btnP.style.color = readableOn(primary);
+            
+                        const btnS = document.getElementById('preview-btn-secondary');
+                        btnS.style.background = secondary;
+                        btnS.style.color = readableOn(secondary);
+                    }
+            
+                    document.addEventListener('DOMContentLoaded', updatePreview);
+                </script>
+            
             </div>
         @endif
 

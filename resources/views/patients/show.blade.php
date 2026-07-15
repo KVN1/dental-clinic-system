@@ -204,6 +204,17 @@
                         <label for="amount_paid">Amount Paid (₱)</label>
                         <input id="amount_paid" type="number" step="0.01" min="0" name="amount_paid" value="0">
                     </div>
+
+                    <div class="field-group" x-show="entryType === 'payment'" x-cloak>
+                        <label for="payment_method">Payment Method</label>
+                        <select id="payment_method" name="payment_method">
+                            @forelse($paymentMethods ?? ['Cash'] as $method)
+                                <option value="{{ $method }}">{{ $method }}</option>
+                            @empty
+                                <option value="Cash">Cash</option>
+                            @endforelse
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-footer" style="justify-content: flex-start;">
@@ -235,6 +246,9 @@
                                     @endif
                                     @if ($log->amount_paid > 0)
                                         <span>Paid: ₱{{ number_format($log->amount_paid, 2) }}</span>
+                                        @if ($log->payment_method)
+                                            <span style="color:var(--color-muted);">via {{ $log->payment_method }}</span>
+                                        @endif
                                     @endif
                                 </div>
                             @endif

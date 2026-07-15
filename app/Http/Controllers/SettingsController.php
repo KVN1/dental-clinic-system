@@ -34,7 +34,7 @@ class SettingsController extends Controller
 
     public function updateClinic(Request $request)
     {
-        $section  = $request->input('section', 'all');
+        $section  = $request->input('section', 'identity');
         $settings = AppSetting::current();
         $data     = [];
 
@@ -67,7 +67,6 @@ class SettingsController extends Controller
                     'currency_symbol'     => 'nullable|string|max:10',
                     'currency_code'       => 'nullable|string|max:10',
                     'default_tax_rate'    => 'nullable|numeric|min:0|max:100',
-                    'show_tax_on_receipt' => 'nullable|boolean',
                     'receipt_footer_note' => 'nullable|string|max:500',
                     'payment_methods'     => 'nullable|array',
                 ]);
@@ -77,24 +76,20 @@ class SettingsController extends Controller
 
             case 'appearance':
                 $data = $request->validate([
-                    'primary_color' => 'nullable|string|max:20',
+                    'date_format'      => 'nullable|string|max:30',
+                    'timezone'         => 'nullable|string|max:50',
+                    'primary_color'    => 'nullable|string|max:20',
+                    'secondary_color'  => 'nullable|string|max:20',
+                    'bg_color'         => 'nullable|string|max:20',
+                    'surface_color'    => 'nullable|string|max:20',
+                    'theme_preset'     => 'nullable|string|max:30',
                 ]);
                 break;
-
-            default:
-                // Save all fields (backward compat)
-                $data = $request->only([
-                    'clinic_name', 'tagline', 'address', 'phone', 'email',
-                    'website', 'tin', 'currency_symbol', 'currency_code',
-                    'default_tax_rate', 'receipt_footer_note', 'primary_color',
-                ]);
-                $data['show_tax_on_receipt'] = $request->boolean('show_tax_on_receipt');
-                $data['payment_methods']     = $request->input('payment_methods', ['Cash']);
         }
 
-        $settings->update(array_filter($data, fn($v) => !is_null($v)));
+        $settings->update($data);
 
-        return back()->with('success', 'Settings saved successfully.');
+        return back()->with('success', ucfirst($section) . ' settings saved successfully.');
     }
 
     public function removeLogo()

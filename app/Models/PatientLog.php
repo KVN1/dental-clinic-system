@@ -14,6 +14,7 @@ class PatientLog extends Model
         'description',
         'amount_charged',
         'amount_paid',
+        'payment_method',
         'recorded_by',
     ];
 
