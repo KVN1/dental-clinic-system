@@ -28,6 +28,14 @@ class User extends Authenticatable
         return $this->role === 'staff';
     }
 
+    // True if this user should appear in dentist selectors/calendars -
+    // either they're explicitly a dentist, OR they're an admin who also treats
+    // patients (owner-dentist) and has filled in a specialty.
+    public function isTreatingProvider()
+    {
+        return $this->role === 'dentist' || ($this->role === 'admin' && !empty($this->specialty));
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -78,9 +86,16 @@ class User extends Authenticatable
         return $this->hasMany(PatientLog::class, 'dentist_id');
     }
 
-    // Scope to only pull dentist accounts, for dropdowns etc.
+    // Scope to pull anyone who can be assigned as a treating provider -
+    // dentists, plus admins who've set a specialty (owner-dentists)
     public function scopeDentists($query)
     {
-        return $query->where('role', 'dentist')->where('is_active', true);
+        return $query->where('is_active', true)
+            ->where(function ($q) {
+                $q->where('role', 'dentist')
+                  ->orWhere(function ($q2) {
+                      $q2->where('role', 'admin')->whereNotNull('specialty');
+                  });
+            });
     }
 }

@@ -38,6 +38,23 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the treating-provider details (specialty & calendar color) -
+     * only meaningful for admins who also treat patients (owner-dentists)
+     * or actual dentist-role accounts.
+     */
+    public function updateProviderInfo(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'specialty' => 'nullable|string|max:255',
+            'color'     => 'nullable|string|max:20',
+        ]);
+
+        $request->user()->update($validated);
+
+        return Redirect::route('profile.edit')->with('status', 'provider-info-updated');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse

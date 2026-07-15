@@ -712,6 +712,25 @@ body {
     color: var(--color-ink);
 }
 
+.nav-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: #D9534F;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    line-height: 1;
+    box-shadow: 0 0 0 2px var(--color-surface);
+}
+
 .nav-item.active {
     background: rgba(var(--color-teal-rgb), 0.12);
     color: var(--color-teal);

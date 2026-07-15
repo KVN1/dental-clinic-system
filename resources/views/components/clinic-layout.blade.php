@@ -97,6 +97,16 @@
                 <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <span class="nav-icon">▦</span> Dashboard
                 </a>
+
+                <a href="{{ route('dashboard') }}#reminders" class="nav-item nav-item-reminders">
+                    <span class="nav-icon" style="position:relative;">
+                        !
+                        @if(($remindersCount ?? 0) > 0)
+                            <span class="nav-badge">{{ $remindersCount > 99 ? '99+' : $remindersCount }}</span>
+                        @endif
+                    </span>
+                    Reminders
+                </a>
                 <a href="{{ route('patients.index') }}" class="nav-item {{ request()->routeIs('patients.*') ? 'active' : '' }}">
                     <span class="nav-icon">◍</span> Patients
                 </a>

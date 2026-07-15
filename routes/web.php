@@ -19,7 +19,7 @@ Route::get('/dashboard', function () {
     $totalBalance = \App\Models\Patient::sum('balance');
     $recentPatients = \App\Models\Patient::orderBy('created_at', 'desc')->take(5)->get();
 
-    $todaysAppointmentsList = \App\Models\Appointment::with('patient')
+    $todaysAppointmentsList = \App\Models\Appointment::with(['patient', 'dentist'])
         ->whereDate('appointment_date', today())
         ->whereNotIn('status', ['cancelled'])
         ->orderBy('appointment_time')
@@ -27,7 +27,30 @@ Route::get('/dashboard', function () {
 
     $todaysAppointments = $todaysAppointmentsList->count();
 
-    return view('dashboard', compact('totalPatients', 'totalBalance', 'recentPatients', 'todaysAppointments', 'todaysAppointmentsList'));
+    $weekAppointments = \App\Models\Appointment::with(['patient', 'dentist'])
+        ->whereBetween('appointment_date', [today()->addDay(), today()->addDays(7)])
+        ->whereNotIn('status', ['cancelled'])
+        ->orderBy('appointment_date')
+        ->orderBy('appointment_time')
+        ->get();
+
+    $overdueBalances = \App\Models\Patient::where('balance', '>', 0)
+        ->orderBy('balance', 'desc')
+        ->take(8)
+        ->get();
+
+    $stalePrescriptions = \App\Models\Prescription::with('patient')
+        ->where('status', 'active')
+        ->where('date_issued', '<=', now()->subDays(30))
+        ->orderBy('date_issued')
+        ->take(5)
+        ->get();
+
+    return view('dashboard', compact(
+        'totalPatients', 'totalBalance', 'recentPatients',
+        'todaysAppointments', 'todaysAppointmentsList',
+        'weekAppointments', 'overdueBalances', 'stalePrescriptions'
+    ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -42,6 +65,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/provider', [ProfileController::class, 'updateProviderInfo'])->name('profile.provider.update');
 
     Route::get('/patients', [PatientController::class, 'index'])->name('patients.index');
     Route::get('/patients/create', [PatientController::class, 'create'])->name('patients.create');
