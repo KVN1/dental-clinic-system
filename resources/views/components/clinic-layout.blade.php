@@ -4,6 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'Dashboard' }} — {{ \App\Models\AppSetting::current()->clinic_name ?? 'Dental Clinic' }}</title>
+
+    @php $faviconSettings = \App\Models\AppSetting::current(); @endphp
+    @if($faviconSettings->logo)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $faviconSettings->logo) }}?v={{ $faviconSettings->updated_at->timestamp }}">
+        <link rel="shortcut icon" type="image/png" href="{{ asset('storage/' . $faviconSettings->logo) }}?v={{ $faviconSettings->updated_at->timestamp }}">
+        <link rel="apple-touch-icon" href="{{ asset('storage/' . $faviconSettings->logo) }}?v={{ $faviconSettings->updated_at->timestamp }}">
+    @endif
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @php
         $themeSettings = \App\Models\AppSetting::current();
@@ -76,7 +84,7 @@
 <div class="sidebar-brand">
                 @php $clinicSettings = \App\Models\AppSetting::current(); @endphp
                 @if($clinicSettings->logo)
-                    <img src="{{ asset('storage/' . $clinicSettings->logo) }}" alt="{{ $clinicSettings->clinic_name }}" style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px;">
+                    <img src="{{ asset('storage/' . $clinicSettings->logo) }}?v={{ $clinicSettings->updated_at->timestamp }}" alt="{{ $clinicSettings->clinic_name }}" style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px;">
                 @else
                     <div style="width:48px;height:48px;border-radius:10px;background:#dce6f7;display:flex;align-items:center;justify-content:center;font-size:22px;color:#1e4a8a;flex-shrink:0;">
                         {{ strtoupper(substr($clinicSettings->clinic_name ?? 'D', 0, 1)) }}

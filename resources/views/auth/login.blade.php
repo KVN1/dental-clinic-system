@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @php $loginClinic = \App\Models\AppSetting::current(); @endphp
     <title>Sign In — {{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}</title>
+
+    @if($loginClinic->logo)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $loginClinic->logo) }}?v={{ $loginClinic->updated_at->timestamp }}">
+        <link rel="shortcut icon" type="image/png" href="{{ asset('storage/' . $loginClinic->logo) }}?v={{ $loginClinic->updated_at->timestamp }}">
+        <link rel="apple-touch-icon" href="{{ asset('storage/' . $loginClinic->logo) }}?v={{ $loginClinic->updated_at->timestamp }}">
+    @endif
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen">
@@ -35,7 +42,7 @@
         <!-- Bottom-left brand copy -->
         <div class="stage-copy">
             @if($loginClinic->logo)
-                <img src="{{ asset('storage/' . $loginClinic->logo) }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="stage-logo">
+                <img src="{{ asset('storage/' . $loginClinic->logo) }}?v={{ $loginClinic->updated_at->timestamp }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="stage-logo">
             @else
                 <img src="{{ asset('images/crosby-logo.png') }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="stage-logo">
             @endif
@@ -61,7 +68,7 @@
             <div class="login-card-header">
                 <div class="login-mark">
                     @if($loginClinic->logo)
-                        <img src="{{ asset('storage/' . $loginClinic->logo) }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="login-mark-logo">
+                        <img src="{{ asset('storage/' . $loginClinic->logo) }}?v={{ $loginClinic->updated_at->timestamp }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="login-mark-logo">
                     @else
                         <img src="{{ asset('images/crosby-logo.png') }}" alt="{{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}" class="login-mark-logo">
                     @endif

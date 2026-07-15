@@ -296,20 +296,31 @@
                     @csrf
                     <input type="hidden" name="section" value="identity">
                     <h3 class="form-section-title">Clinic Identity</h3>
-                    <div class="field-group" style="margin-bottom:1.25rem;">
+                    <div class="field-group" style="margin-bottom:1.25rem;" x-data="{ logoPreview: null }">
                         <label>Clinic Logo</label>
                         <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                            <template x-if="logoPreview">
+                                <img :src="logoPreview" style="height:60px;width:60px;object-fit:cover;border-radius:8px;border:1px solid #dce6f7;padding:4px;background:#fff;">
+                            </template>
+                            <template x-if="!logoPreview">
+                                @if($appSettings->logo)
+                                    <img src="{{ asset('storage/' . $appSettings->logo) }}?v={{ $appSettings->updated_at->timestamp }}" style="height:60px;border-radius:8px;border:1px solid #dce6f7;padding:4px;background:#fff;">
+                                @else
+                                    <div style="height:60px;width:60px;border-radius:10px;background:#dce6f7;display:flex;align-items:center;justify-content:center;font-size:26px;color:#1e4a8a;font-weight:bold;">
+                                        {{ strtoupper(substr($appSettings->clinic_name ?? 'D', 0, 1)) }}
+                                    </div>
+                                @endif
+                            </template>
+
                             @if($appSettings->logo)
-                                <img src="{{ asset('storage/' . $appSettings->logo) }}" style="height:60px;border-radius:8px;border:1px solid #dce6f7;padding:4px;background:#fff;">
                                 <a href="{{ route('settings.clinic.remove-logo') }}" onclick="return confirm('Remove logo?')" style="color:#D96A48;font-size:13px;text-decoration:none;">Remove</a>
-                            @else
-                                <div style="height:60px;width:60px;border-radius:10px;background:#dce6f7;display:flex;align-items:center;justify-content:center;font-size:26px;color:#1e4a8a;font-weight:bold;">
-                                    {{ strtoupper(substr($appSettings->clinic_name ?? 'D', 0, 1)) }}
-                                </div>
                             @endif
+
                             <div>
-                                <input type="file" name="logo" accept="image/*" style="font-size:13px;">
+                                <input type="file" name="logo" accept="image/*" style="font-size:13px;"
+                                       @change="const f = $event.target.files[0]; if (f) { const r = new FileReader(); r.onload = e => logoPreview = e.target.result; r.readAsDataURL(f); }">
                                 <div style="font-size:11px;color:#aaa;margin-top:4px;">PNG, JPG, SVG. Max 2MB.</div>
+                                <div x-show="logoPreview" style="font-size:11px;color:var(--color-teal);margin-top:2px;">New logo selected — click "Save Identity" below to apply.</div>
                             </div>
                         </div>
                     </div>
