@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\AppointmentReschedule;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -82,7 +83,7 @@ class AppointmentController extends Controller
         return view('appointments.edit', compact('appointment', 'patients', 'dentists'));
     }
 
-    // Update an appointment
+    // Update an appointment (general edit - patient, dentist, purpose, notes)
     public function update(Request $request, Appointment $appointment)
     {
         $validated = $request->validate([
@@ -94,9 +95,27 @@ class AppointmentController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        // Detect if date or time actually changed - if so, treat as a reschedule
+        $dateChanged = $appointment->appointment_date->format('Y-m-d') !== $validated['appointment_date'];
+        $timeChanged = $appointment->appointment_time !== $validated['appointment_time'];
+
+        if ($dateChanged || $timeChanged) {
+            AppointmentReschedule::create([
+                'appointment_id'  => $appointment->id,
+                'old_date'        => $appointment->appointment_date,
+                'old_time'        => $appointment->appointment_time,
+                'new_date'        => $validated['appointment_date'],
+                'new_time'        => $validated['appointment_time'],
+                'reason'          => $request->input('reschedule_reason'),
+                'rescheduled_by'  => auth()->id(),
+            ]);
+
+            $appointment->reschedule_count += 1;
+        }
+
         $appointment->update($validated);
 
-        return redirect()->route('appointments.index')->with('success', 'Appointment updated.');
+        return redirect()->route('appointments.index')->with('success', $dateChanged || $timeChanged ? 'Appointment rescheduled successfully.' : 'Appointment updated.');
     }
 
     // Delete an appointment entirely

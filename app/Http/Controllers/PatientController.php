@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 class PatientController extends Controller
 {
     // Show list of all patients
-public function index(Request $request)
+    public function index(Request $request)
     {
-        $query = Patient::orderBy('last_name');
+        $query = Patient::query();
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -24,14 +24,70 @@ public function index(Request $request)
             });
         }
 
+        // Filter: balance status
+        if ($request->filled('balance_filter')) {
+            if ($request->balance_filter === 'with_balance') {
+                $query->where('balance', '>', 0);
+            } elseif ($request->balance_filter === 'paid_up') {
+                $query->where('balance', '<=', 0);
+            }
+        }
+
+        // Filter: has upcoming appointment
+        if ($request->filled('appointment_filter')) {
+            if ($request->appointment_filter === 'upcoming') {
+                $query->whereHas('appointments', function ($q) {
+                    $q->where('appointment_date', '>=', today())
+                      ->whereNotIn('status', ['cancelled']);
+                });
+            } elseif ($request->appointment_filter === 'none') {
+                $query->whereDoesntHave('appointments', function ($q) {
+                    $q->where('appointment_date', '>=', today())
+                      ->whereNotIn('status', ['cancelled']);
+                });
+            }
+        }
+
+        // Sorting
+        $sort = $request->input('sort', 'name_asc');
+
+        switch ($sort) {
+            case 'name_desc':
+                $query->orderBy('last_name', 'desc')->orderBy('first_name', 'desc');
+                break;
+            case 'date_added_newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'date_added_oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'balance_highest':
+                $query->orderBy('balance', 'desc');
+                break;
+            case 'balance_lowest':
+                $query->orderBy('balance', 'asc');
+                break;
+            case 'last_visit_recent':
+                $query->withMax('logs', 'visit_date')->orderBy('logs_max_visit_date', 'desc');
+                break;
+            case 'last_visit_oldest':
+                $query->withMax('logs', 'visit_date')->orderBy('logs_max_visit_date', 'asc');
+                break;
+            case 'name_asc':
+            default:
+                $query->orderBy('last_name', 'asc')->orderBy('first_name', 'asc');
+                break;
+        }
+
         $patients = $query->paginate(15)->withQueryString();
 
         if ($request->ajax()) {
-            return view('patients._results', compact('patients'));
+            return view('patients._results', compact('patients', 'sort'));
         }
 
-        return view('patients.index', compact('patients'));
+        return view('patients.index', compact('patients', 'sort'));
     }
+
     // Show the form to add a new patient
     public function create()
     {
@@ -87,7 +143,7 @@ public function index(Request $request)
     // Save a new log entry (visit, payment, or note) for a patient
     public function storeLog(Request $request, Patient $patient)
     {
-$validated = $request->validate([
+        $validated = $request->validate([
             'visit_date' => 'required|date',
             'tooth_number' => 'nullable|string|max:50',
             'entry_type' => 'required|in:visit,payment,note',
@@ -98,14 +154,14 @@ $validated = $request->validate([
             'dentist_id' => 'nullable|exists:users,id',
         ]);
 
-$validated['amount_charged'] = $validated['amount_charged'] ?? 0;
+        $validated['amount_charged'] = $validated['amount_charged'] ?? 0;
         $validated['amount_paid'] = $validated['amount_paid'] ?? 0;
         $validated['description'] = $validated['description'] ?: 'Balance payment';
         $validated['recorded_by'] = auth()->user()->name;
 
         $patient->logs()->create($validated);
 
-// Update the patient's running balance (never goes below zero)
+        // Update the patient's running balance (never goes below zero)
         $newBalance = $patient->balance + $validated['amount_charged'] - $validated['amount_paid'];
         $patient->balance = max(0, $newBalance);
         $patient->save();

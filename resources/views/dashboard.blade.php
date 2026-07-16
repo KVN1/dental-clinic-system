@@ -144,6 +144,28 @@
                 @endforelse
             </div>
 
+            <!-- Recently Rescheduled -->
+            <div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-muted);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--color-border, #E7ECEB);">
+                    Recently Rescheduled &middot; {{ ($recentReschedules ?? collect())->count() }}
+                </div>
+                @forelse(($recentReschedules ?? collect()) as $r)
+                    <a href="{{ route('appointments.edit', $r->appointment) }}" style="display:block;padding:9px 10px;border-radius:8px;background:var(--color-bg);margin-bottom:6px;text-decoration:none;color:inherit;border-left:3px solid #F97316;">
+                        <div style="font-size:12px;font-weight:600;color:var(--color-ink);">
+                            {{ $r->appointment->patient->last_name ?? 'Unknown' }}, {{ $r->appointment->patient->first_name ?? '' }}
+                        </div>
+                        <div style="font-size:11px;color:var(--color-muted);margin-top:2px;">
+                            {{ $r->old_date->format('M d') }} &rarr; {{ \Carbon\Carbon::parse($r->new_date)->format('M d, g:i A') }}
+                            @if($r->reason)
+                                <br><span style="color:#C2410C;">{{ $r->reason }}</span>
+                            @endif
+                        </div>
+                    </a>
+                @empty
+                    <p style="font-size:12px;color:var(--color-muted);padding:10px 0;">No recent reschedules.</p>
+                @endforelse
+            </div>
+
             </div>
         </div>
 

@@ -14,6 +14,7 @@ class Appointment extends Model
         'purpose',
         'status',
         'notes',
+        'reschedule_count',
     ];
 
     protected $casts = [
@@ -28,5 +29,10 @@ class Appointment extends Model
     public function dentist()
     {
         return $this->belongsTo(User::class, 'dentist_id');
+    }
+
+    public function reschedules()
+    {
+        return $this->hasMany(AppointmentReschedule::class)->orderBy('created_at', 'desc');
     }
 }

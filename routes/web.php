@@ -46,10 +46,17 @@ Route::get('/dashboard', function () {
         ->take(5)
         ->get();
 
+    $recentReschedules = \App\Models\AppointmentReschedule::with(['appointment.patient', 'appointment.dentist'])
+        ->where('created_at', '>=', now()->subDays(7))
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
+
     return view('dashboard', compact(
         'totalPatients', 'totalBalance', 'recentPatients',
         'todaysAppointments', 'todaysAppointmentsList',
-        'weekAppointments', 'overdueBalances', 'stalePrescriptions'
+        'weekAppointments', 'overdueBalances', 'stalePrescriptions',
+        'recentReschedules'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -64,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/prescriptions/{prescription}/print', [App\Http\Controllers\PrescriptionController::class, 'print'])->name('prescriptions.print');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/provider', [ProfileController::class, 'updateProviderInfo'])->name('profile.provider.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
