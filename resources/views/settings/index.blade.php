@@ -621,7 +621,39 @@
             
                     document.addEventListener('DOMContentLoaded', updatePreview);
                 </script>
-            
+
+                <hr style="border:none;border-top:1px solid var(--color-border, #E7ECEB);margin:1.75rem 0;">
+
+<div x-data="{ showResetConfirm: false }">
+    <h3 class="form-section-title" style="color:#D9534F;">Danger Zone</h3>
+    <p style="font-size:12px;color:var(--color-muted);margin-bottom:14px;">
+        Load sample demo data for testing or showcasing. <strong>This permanently deletes all current patients, appointments, prescriptions, and images</strong> and replaces them with sample data. Clinic branding and login accounts are not affected.
+    </p>
+
+    <button type="button" class="pill-btn pill-btn-danger" @click="showResetConfirm = true">
+        Reset to Demo Data
+    </button>
+
+    <div x-show="showResetConfirm" x-cloak class="modal-overlay" style="display:none;" @click.self="showResetConfirm = false">
+        <div class="modal-box">
+            <div class="modal-title" style="color:#D9534F;">Reset to Demo Data</div>
+            <div class="modal-subtitle">
+                This will permanently delete <strong>all patients, appointments, prescriptions, treatment logs, and uploaded images</strong> currently in the system, and replace them with sample demo data.
+                <br><br>
+                This cannot be undone. Type <strong>RESET DATA</strong> below to confirm.
+            </div>
+            <form method="POST" action="{{ route('settings.demo.reset') }}">
+                @csrf
+                <input type="text" name="confirm_text" class="modal-input" placeholder="Type RESET DATA to confirm" required>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" @click="showResetConfirm = false">Cancel</button>
+                    <button type="submit" class="pill-btn pill-btn-danger" style="padding:8px 16px;">Confirm Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
             </div>
         @endif
 

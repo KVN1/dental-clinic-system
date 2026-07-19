@@ -127,6 +127,9 @@ Route::get('/appointments/calendar-data', [App\Http\Controllers\CalendarControll
         // Clinic Settings
         Route::post('/settings/clinic', [SettingsController::class, 'updateClinic'])->name('settings.clinic');
         Route::get('/settings/clinic/remove-logo', [SettingsController::class, 'removeLogo'])->name('settings.clinic.remove-logo');
+
+        // Demo Data Reset
+        Route::post('/settings/demo-reset', [App\Http\Controllers\DemoSeederController::class, 'run'])->name('settings.demo.reset');
     });
 });
 
