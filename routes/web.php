@@ -62,6 +62,9 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
 
+    Route::get('/manual', [App\Http\Controllers\UserManualController::class, 'index'])->name('manual.index');
+
+
     Route::post('/patients/{patient}/images', [App\Http\Controllers\PatientImageController::class, 'store'])->name('patients.images.store');
     Route::delete('/patient-images/{patientImage}', [App\Http\Controllers\PatientImageController::class, 'destroy'])->name('patients.images.destroy');
 

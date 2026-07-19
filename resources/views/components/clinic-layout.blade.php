@@ -124,6 +124,11 @@
 <a href="{{ route('settings.index') }}" class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
     <span class="nav-icon">⚙</span> Settings
 </a>
+
+    <a href="{{ route('manual.index') }}" class="nav-item {{ request()->routeIs('manual.*') ? 'active' : '' }}">
+        <span class="nav-icon">?</span> User Manual
+    </a>
+
             </nav>
 
             <div class="sidebar-footer">
