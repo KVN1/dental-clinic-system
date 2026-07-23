@@ -11,8 +11,14 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
-    return view('welcome');
+    if (\App\Models\User::count() === 0) {
+        return redirect()->route('setup.show');
+    }
+    return redirect()->route('login');
 });
+
+Route::get('/setup', [App\Http\Controllers\FirstTimeSetupController::class, 'show'])->name('setup.show');
+Route::post('/setup', [App\Http\Controllers\FirstTimeSetupController::class, 'store'])->name('setup.store');
 
 Route::get('/dashboard', function () {
     $totalPatients = \App\Models\Patient::count();
@@ -63,6 +69,11 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
 
     Route::get('/manual', [App\Http\Controllers\UserManualController::class, 'index'])->name('manual.index');
+
+    // Onboarding tour - simple server-driven, page-by-page
+    Route::post('/onboarding/next', [App\Http\Controllers\OnboardingController::class, 'next'])->name('onboarding.next');
+    Route::post('/onboarding/skip', [App\Http\Controllers\OnboardingController::class, 'skip'])->name('onboarding.skip');
+    Route::post('/onboarding/restart', [App\Http\Controllers\OnboardingController::class, 'restart'])->name('onboarding.restart');
 
 
     Route::post('/patients/{patient}/images', [App\Http\Controllers\PatientImageController::class, 'store'])->name('patients.images.store');

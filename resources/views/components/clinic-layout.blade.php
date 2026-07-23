@@ -197,11 +197,111 @@
 </header>
 
             <main class="app-content">
+                @if (session('demo_blocked'))
+                    <div style="background:#FFF7ED;border:1px solid #FDBA74;border-radius:8px;padding:10px 16px;margin-bottom:1rem;color:#9A3412;font-size:13px;">
+                        {{ session('demo_blocked') }}
+                    </div>
+                @endif
+
                 {{ $slot }}
             </main>
         </div>
 
     </div>
+
+
+
+@php
+    $tourSteps = [
+        'dashboard'    => ['title' => 'Your Dashboard', 'desc' => "This is your home base. See today's appointments, outstanding balances, and reminders here every time you log in.", 'next_step' => 'patients', 'next_url' => route('patients.index'), 'next_label' => 'Next: Patients'],
+        'patients'     => ['title' => 'Patients', 'desc' => 'Add new patients, search existing ones, and manage their full medical history, treatments, prescriptions, and X-rays from one place.', 'next_step' => 'appointments', 'next_url' => route('appointments.index'), 'next_label' => 'Next: Appointments'],
+        'appointments' => ['title' => 'Appointments', 'desc' => 'Book appointments manually, or click directly on the calendar to schedule. Assign a dentist and the calendar color-codes automatically.', 'next_step' => 'manual', 'next_url' => route('manual.index'), 'next_label' => 'Next: User Manual'],
+        'manual'       => ['title' => 'Need Help Later?', 'desc' => 'This User Manual is always here with step-by-step guides for everything in the system. Come back anytime.', 'next_step' => 'settings', 'next_url' => route('settings.index'), 'next_label' => 'Next: Settings'],
+        'settings'     => ['title' => 'Settings', 'desc' => 'This is where you brand the system as your own: clinic name, logo, colors, staff accounts, backups, and more.', 'next_step' => null, 'next_url' => null, 'next_label' => 'Finish Tour'],
+    ];
+
+    $currentTourStep = session('onboarding_step');
+@endphp
+
+@if ($currentTourStep && isset($tourSteps[$currentTourStep]))
+    @php $step = $tourSteps[$currentTourStep]; @endphp
+    <div style="position:fixed;bottom:24px;right:24px;z-index:9999;background:#fff;border-radius:14px;padding:18px 20px;max-width:300px;box-shadow:0 12px 40px rgba(0,0,0,0.25);border:1px solid #E7ECEB;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:10px;font-weight:700;color:#2A9D8F;text-transform:uppercase;letter-spacing:0.06em;">Quick Guide</span>
+            <form method="POST" action="{{ route('onboarding.dismiss') }}" style="margin:0;">
+                @csrf
+                <button type="submit" style="background:none;border:none;color:#6B7280;font-size:12px;cursor:pointer;">Skip</button>
+            </form>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:#12302E;margin-bottom:6px;">{{ $step['title'] }}</div>
+        <div style="font-size:12px;color:#6B7280;line-height:1.6;margin-bottom:14px;">{{ $step['desc'] }}</div>
+
+        @if ($step['next_url'])
+            <form method="POST" action="{{ route('onboarding.advance') }}">
+                @csrf
+                <input type="hidden" name="step" value="{{ $step['next_step'] }}">
+                <input type="hidden" name="next_url" value="{{ $step['next_url'] }}">
+                <button type="submit" style="background:#2A9D8F;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+                    {{ $step['next_label'] }} &rarr;
+                </button>
+            </form>
+        @else
+            <form method="POST" action="{{ route('onboarding.dismiss') }}">
+                @csrf
+                <button type="submit" style="background:#2A9D8F;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+                    {{ $step['next_label'] }}
+                </button>
+            </form>
+        @endif
+    </div>
+@endif
+
+@php
+    $onboardingStep = session('onboarding_step');
+    $onboardingSteps = \App\Http\Controllers\OnboardingController::steps();
+    $showOnboarding = false;
+    $onboardingData = null;
+
+    if ($onboardingStep && isset($onboardingSteps[$onboardingStep])) {
+        $expectedRoute = $onboardingSteps[$onboardingStep]['route'];
+        if (request()->routeIs($expectedRoute) || request()->routeIs($expectedRoute . '.*')) {
+            $showOnboarding = true;
+            $onboardingData = $onboardingSteps[$onboardingStep];
+        }
+    }
+@endphp
+
+@if($showOnboarding)
+<div class="modal-overlay" style="display:flex;">
+    <div class="modal-box" style="max-width:380px;text-align:left;">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:10px;font-weight:700;color:var(--color-teal);text-transform:uppercase;letter-spacing:0.06em;">
+                Step {{ $onboardingStep }} of {{ count($onboardingSteps) }}
+            </span>
+            <form method="POST" action="{{ route('onboarding.skip') }}" style="margin:0;">
+                @csrf
+                <button type="submit" style="background:none;border:none;color:var(--color-muted);font-size:12px;cursor:pointer;">Skip tour</button>
+            </form>
+        </div>
+
+        <div style="font-size:16px;font-weight:700;color:var(--color-ink);margin-bottom:8px;">
+            {{ $onboardingData['title'] }}
+        </div>
+        <div style="font-size:13px;color:var(--color-muted);line-height:1.65;margin-bottom:20px;">
+            {{ $onboardingData['desc'] }}
+        </div>
+
+        <form method="POST" action="{{ route('onboarding.next') }}">
+            @csrf
+            <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">
+                {{ $onboardingStep >= count($onboardingSteps) ? 'Finish' : 'Next: ' . ($onboardingSteps[$onboardingStep + 1]['title'] ?? '') }}
+            </button>
+        </form>
+
+    </div>
+</div>
+@endif
 
 </body>
 </html>

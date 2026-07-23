@@ -125,18 +125,7 @@
                         <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
-
-                <button type="button" onclick="fillDemoClinic()" class="submit-btn" style="margin-top:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);">
-                    Try Demo — Auto Fill &amp; Login
-                </button>
             </form>
-
-            <!-- Demo credentials -->
-            <div style="margin-top:14px;padding:12px 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:13px;color:rgba(255,255,255,0.8);">
-                <div style="font-weight:700;color:#7eb3ff;margin-bottom:6px;letter-spacing:0.05em;">DEMO CREDENTIALS</div>
-                <div>Email: <strong>kevinsatur11@gmail.com</strong></div>
-                <div>Password: <strong>QWEASDzxc123</strong></div>
-            </div>
 
             <div class="access-divider"><span>ACCESS LEVEL</span></div>
 
@@ -157,17 +146,10 @@
                 </button>
             </div>
 
-            <p class="login-footnote">© {{ date('Y') }} {{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }} — Demo Mode</p>
+            <p class="login-footnote">© {{ date('Y') }} {{ $loginClinic->clinic_name ?? 'Crosby Dental Clinic' }}</p>
         </div>
 
     </div>
 
-<script>
-function fillDemoClinic() {
-    document.getElementById('email').value = 'kevinsatur11@gmail.com';
-    document.getElementById('password').value = 'QWEASDzxc123';
-    document.querySelector('form').submit();
-}
-</script>
 </body>
 </html>

@@ -52,4 +52,9 @@ class Patient extends Model
     {
         return $this->hasMany(Prescription::class)->orderBy('date_issued', 'desc');
     }
+
+    public function images()
+    {
+        return $this->hasMany(PatientImage::class)->orderBy('taken_date', 'desc');
+    }
 }
